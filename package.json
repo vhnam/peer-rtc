@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.23",
     "lucide-react": "^0.577.0",
+    "peerjs": "^1.5.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "shadcn": "^4.19.0",
@@ -32,11 +33,13 @@
     "valibot": "^1.4.2"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tanstack/router-cli": "^1.132.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "typescript": "^6.0.2",

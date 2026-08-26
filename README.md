@@ -17,23 +17,23 @@ pnpm install
 pnpm dev
 ```
 
-App runs at [http://localhost:3000](http://localhost:3000).
+App runs at [https://localhost:3000](https://localhost:3000) (self-signed cert; accept the browser warning once).
 
 ### Scripts
 
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Start the dev server on port 3000 |
-| `pnpm build` | Production build |
-| `pnpm preview` | Preview the production build |
+| Command                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `pnpm dev`             | Start the HTTPS dev server on port 3000   |
+| `pnpm build`           | Production build                          |
+| `pnpm preview`         | Preview the production build              |
 | `pnpm generate-routes` | Regenerate the TanStack Router route tree |
 
 ## App structure
 
-| Route | Module | Purpose |
-| --- | --- | --- |
-| `/` | `src/modules/lobby` | Enter a room UUID or join URL |
-| `/$roomId` | `src/modules/room` | Room view with media controls and joining info |
+| Route      | Module              | Purpose                                        |
+| ---------- | ------------------- | ---------------------------------------------- |
+| `/`        | `src/modules/lobby` | Enter a room UUID or join URL                  |
+| `/$roomId` | `src/modules/room`  | Room view with media controls and joining info |
 
 ```
 src/

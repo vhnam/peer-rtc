@@ -4,6 +4,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 const config = defineConfig({
   fmt: {},
@@ -14,6 +15,7 @@ const config = defineConfig({
   },
   resolve: { tsconfigPaths: true },
   plugins: lazyPlugins(() => [
+    basicSsl(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

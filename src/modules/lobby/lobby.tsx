@@ -5,13 +5,19 @@ import { KeyboardIcon, VideoIcon } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { Field, FieldError } from "#/components/ui/field";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "#/components/ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "#/components/ui/input-group";
 import { LobbySchema } from "#/schemas/lobby.schema";
 import { useLobbyActions } from "./lobby.actions";
 import { isURL, isUUID } from "#/utils/room";
+import { toast } from "#/components/ui/toast";
 
 const LobbyPage = () => {
-  const { form, joinRoomByCode, joinRoomByURL } = useLobbyActions();
+  const { form, joinRoomByCode, joinRoomByURL, createNewRoom } = useLobbyActions();
 
   const handleSubmit: SubmitHandler<typeof LobbySchema> = async (data) => {
     try {
@@ -23,7 +29,11 @@ const LobbyPage = () => {
         throw new Error("Something went wrong during connecting room");
       }
     } catch (error) {
-      console.error(error);
+      void toast.add({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        type: "destructive",
+      });
     }
   };
 
@@ -38,11 +48,14 @@ const LobbyPage = () => {
         </CardHeader>
         <CardContent>
           <Form of={form} onSubmit={handleSubmit}>
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-4">
               <FormischField of={form} path={["room_id"]}>
                 {(field) => (
                   <Field data-invalid={field.errors !== null}>
                     <InputGroup>
+                      <InputGroupAddon>
+                        <KeyboardIcon />
+                      </InputGroupAddon>
                       <InputGroupInput
                         {...field.props}
                         value={field.input ?? ""}
@@ -50,8 +63,10 @@ const LobbyPage = () => {
                         aria-invalid={field.errors !== null}
                         autoComplete="off"
                       />
-                      <InputGroupAddon>
-                        <KeyboardIcon />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton variant="secondary" type="submit">
+                          Join
+                        </InputGroupButton>
                       </InputGroupAddon>
                     </InputGroup>
                     {field.errors && (
@@ -60,7 +75,7 @@ const LobbyPage = () => {
                   </Field>
                 )}
               </FormischField>
-              <Button type="submit">
+              <Button type="button" onClick={createNewRoom}>
                 <VideoIcon data-icon="inline-start" /> New
               </Button>
             </div>
