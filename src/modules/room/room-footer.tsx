@@ -1,10 +1,24 @@
-import { ChevronDownIcon, MicIcon, PhoneOffIcon, VideoIcon } from 'lucide-react';
+import { ChevronDownIcon, MicIcon, MicOffIcon, PhoneIcon, VideoIcon, VideoOffIcon } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { ButtonGroup } from '#/components/ui/button-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip';
 
-const RoomFooter = () => {
+interface RoomFooterProps {
+  isMicrophoneEnabled: boolean;
+  isCameraEnabled: boolean;
+  toggleMicrophone: () => void;
+  toggleCamera: () => void;
+  leaveRoom: () => void;
+}
+
+export const RoomFooter = ({
+  isMicrophoneEnabled,
+  isCameraEnabled,
+  toggleMicrophone,
+  toggleCamera,
+  leaveRoom,
+}: RoomFooterProps) => {
   return (
     <footer className="flex h-20 shrink-0 items-center justify-center">
       <div className="flex items-center justify-center gap-4 bg-muted px-4 py-2">
@@ -15,8 +29,13 @@ const RoomFooter = () => {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button variant="outline" size="icon-lg">
-                  <MicIcon />
+                <Button
+                  variant={isMicrophoneEnabled ? 'outline' : 'destructive'}
+                  onClick={toggleMicrophone}
+                  size="icon-lg"
+                  aria-pressed={isMicrophoneEnabled}
+                >
+                  {isMicrophoneEnabled ? <MicIcon /> : <MicOffIcon />}
                 </Button>
               }
             />
@@ -33,8 +52,13 @@ const RoomFooter = () => {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button variant="outline" size="icon-lg">
-                  <VideoIcon />
+                <Button
+                  variant={isCameraEnabled ? 'outline' : 'destructive'}
+                  size="icon-lg"
+                  onClick={toggleCamera}
+                  aria-pressed={isCameraEnabled}
+                >
+                  {isCameraEnabled ? <VideoIcon /> : <VideoOffIcon />}
                 </Button>
               }
             />
@@ -47,18 +71,16 @@ const RoomFooter = () => {
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button variant="destructive" size="icon-lg">
-                <PhoneOffIcon />
+              <Button variant="destructive" size="icon-lg" onClick={leaveRoom}>
+                <PhoneIcon className="rotate-135" />
               </Button>
             }
           />
           <TooltipContent>
-            <p>Leave the room</p>
+            <p>Leave room</p>
           </TooltipContent>
         </Tooltip>
       </div>
     </footer>
   );
 };
-
-export default RoomFooter;
