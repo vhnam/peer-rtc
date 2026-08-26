@@ -14,3 +14,4 @@ todos.json
 !.vscode/
 !.vscode/settings.json
 !.vscode/extensions.json
+.pnpm-store
