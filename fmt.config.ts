@@ -1,6 +1,7 @@
 import type { OxfmtConfig } from 'vite-plus/fmt';
 
 export const fmt: OxfmtConfig = {
+  ignorePatterns: ['src/routeTree.gen.ts'],
   trailingComma: 'all',
   printWidth: 120,
   tabWidth: 2,
