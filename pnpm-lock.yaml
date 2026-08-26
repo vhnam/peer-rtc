@@ -59,6 +59,9 @@ importers:
       peerjs:
         specifier: ^1.5.5
         version: 1.5.5
+      peerjs-js-binarypack:
+        specifier: 2.1.0
+        version: 2.1.0
       react:
         specifier: ^19.2.0
         version: 19.2.8

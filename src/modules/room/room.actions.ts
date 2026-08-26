@@ -1,4 +1,8 @@
+import type { Peer } from 'peerjs';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { joinPeerRoom } from './join-peer-room';
 
 const stopStreamTracks = (stream: MediaStream | null | undefined) => {
   stream?.getTracks().forEach((track) => {
@@ -8,6 +12,8 @@ const stopStreamTracks = (stream: MediaStream | null | undefined) => {
 
 export const useRoomActions = () => {
   const hasLeftRef = useRef(false);
+  const joinGenerationRef = useRef(0);
+  const peerRef = useRef<Peer | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const localVideoStreamRef = useRef<MediaStream | null>(null);
@@ -59,7 +65,7 @@ export const useRoomActions = () => {
       videoElementRef.current = video;
 
       if (hasLeftRef.current) {
-        return;
+        return false;
       }
 
       setIsCameraEnabled(false);
@@ -67,7 +73,7 @@ export const useRoomActions = () => {
       const nextStream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (hasLeftRef.current) {
         stopStreamTracks(nextStream);
-        return;
+        return false;
       }
 
       stopStreamTracks(localVideoStreamRef.current);
@@ -80,17 +86,19 @@ export const useRoomActions = () => {
       if (hasLeftRef.current) {
         stopStreamTracks(nextStream);
         video.srcObject = null;
-        return;
+        return false;
       }
 
-      setIsCameraEnabled(nextStream.getVideoTracks().some((track) => track.readyState === 'live'));
+      const isLive = nextStream.getVideoTracks().some((track) => track.readyState === 'live');
+      setIsCameraEnabled(isLive);
+      return isLive;
     },
     [replaceTracks],
   );
 
   const startLocalAudio = useCallback(async () => {
     if (hasLeftRef.current) {
-      return;
+      return false;
     }
 
     setIsMicrophoneEnabled(false);
@@ -98,14 +106,16 @@ export const useRoomActions = () => {
     const nextStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     if (hasLeftRef.current) {
       stopStreamTracks(nextStream);
-      return;
+      return false;
     }
 
     stopStreamTracks(localAudioStreamRef.current);
     localAudioStreamRef.current = nextStream;
     replaceTracks('audio', nextStream);
 
-    setIsMicrophoneEnabled(nextStream.getAudioTracks().some((track) => track.readyState === 'live'));
+    const isLive = nextStream.getAudioTracks().some((track) => track.readyState === 'live');
+    setIsMicrophoneEnabled(isLive);
+    return isLive;
   }, [replaceTracks]);
 
   const toggleMicrophone = useCallback(async () => {
@@ -138,12 +148,41 @@ export const useRoomActions = () => {
     await startLocalVideo(video);
   }, [isCameraEnabled, startLocalVideo, stopTracks]);
 
+  const destroyPeer = useCallback(() => {
+    peerRef.current?.destroy();
+    peerRef.current = null;
+  }, []);
+
+  const joinRoom = useCallback(
+    async (roomId: string) => {
+      if (hasLeftRef.current) {
+        return;
+      }
+
+      const generation = joinGenerationRef.current + 1;
+      joinGenerationRef.current = generation;
+      destroyPeer();
+
+      const peer = await joinPeerRoom(roomId, () => mediaStreamRef.current);
+
+      if (hasLeftRef.current || generation !== joinGenerationRef.current) {
+        peer.destroy();
+        return;
+      }
+
+      peerRef.current = peer;
+    },
+    [destroyPeer],
+  );
+
   const rejoinRoom = useCallback(() => {
     hasLeftRef.current = false;
   }, []);
 
   const leaveRoom = useCallback(() => {
     hasLeftRef.current = true;
+    joinGenerationRef.current += 1;
+    destroyPeer();
 
     stopStreamTracks(localVideoStreamRef.current);
     stopStreamTracks(localAudioStreamRef.current);
@@ -162,17 +201,19 @@ export const useRoomActions = () => {
     setMediaStream(null);
     setIsMicrophoneEnabled(false);
     setIsCameraEnabled(false);
-  }, []);
+  }, [destroyPeer]);
 
   useEffect(() => {
     hasLeftRef.current = false;
 
     return () => {
+      joinGenerationRef.current += 1;
+      destroyPeer();
       stopStreamTracks(localVideoStreamRef.current);
       stopStreamTracks(localAudioStreamRef.current);
       stopStreamTracks(mediaStreamRef.current);
     };
-  }, []);
+  }, [destroyPeer]);
 
   return {
     mediaStream,
@@ -180,6 +221,7 @@ export const useRoomActions = () => {
     isCameraEnabled,
     leaveRoom,
     rejoinRoom,
+    joinRoom,
     startLocalVideo,
     startLocalAudio,
     toggleMicrophone,

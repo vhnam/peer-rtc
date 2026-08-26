@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Join a PeerJS room by code after local camera and microphone start
+
+### Fixed
+
+- Vite can resolve PeerJS (`peerjs-js-binarypack`) under pnpm
+
 ## [0.1.3] - 2026-08-27
 
 ### Added

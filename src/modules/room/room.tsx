@@ -29,6 +29,7 @@ const Room = ({ roomId }: RoomProps) => {
     toggleCamera,
     leaveRoom,
     rejoinRoom,
+    joinRoom,
   } = useRoomActions();
 
   const handleLeaveRoom = () => {
@@ -58,8 +59,11 @@ const Room = ({ roomId }: RoomProps) => {
     let cancelled = false;
 
     void (async () => {
+      let cameraStarted = false;
+      let microphoneStarted = false;
+
       try {
-        await startLocalVideo(localVideo);
+        cameraStarted = await startLocalVideo(localVideo);
       } catch (error: unknown) {
         console.error(error);
       }
@@ -69,7 +73,17 @@ const Room = ({ roomId }: RoomProps) => {
       }
 
       try {
-        await startLocalAudio();
+        microphoneStarted = await startLocalAudio();
+      } catch (error: unknown) {
+        console.error(error);
+      }
+
+      if (cancelled || (!cameraStarted && !microphoneStarted)) {
+        return;
+      }
+
+      try {
+        await joinRoom(roomId);
       } catch (error: unknown) {
         console.error(error);
       }
@@ -78,7 +92,7 @@ const Room = ({ roomId }: RoomProps) => {
     return () => {
       cancelled = true;
     };
-  }, [inRoom, startLocalAudio, startLocalVideo]);
+  }, [inRoom, joinRoom, roomId, startLocalAudio, startLocalVideo]);
 
   if (!inRoom) {
     return (

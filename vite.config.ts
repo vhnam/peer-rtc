@@ -71,7 +71,20 @@ const config = defineConfig(({ command, mode }) => {
       rules: { 'vite-plus/prefer-vite-plus-imports': 'error' },
       options: { typeAware: true, typeCheck: true },
     },
-    resolve: { tsconfigPaths: true },
+    resolve: {
+      tsconfigPaths: true,
+      alias: {
+        'peerjs-js-binarypack': path.resolve(root, 'node_modules/peerjs-js-binarypack'),
+      },
+    },
+    optimizeDeps: {
+      include: ['peerjs', 'peerjs-js-binarypack'],
+    },
+    ssr: {
+      optimizeDeps: {
+        include: ['peerjs', 'peerjs-js-binarypack'],
+      },
+    },
     plugins: lazyPlugins(() => [
       tailwindcss(),
       tanstackStart(),
