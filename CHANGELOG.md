@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-26
+
 ### Added
 
 - t3-env (`src/env.ts`) to validate `VITE_PUBLIC_APP_URL` with Valibot
 - TLS cert env (`SSL_CERT_FILE`, `SSL_KEY_FILE`) validated in `vite.config.ts`
 - Oxfmt Tailwind class sorting via `src/styles/global.css` (`cn`, `clsx`, `cva`)
+- Tailwind CSS VS Code extension recommendation and file association
+
+### Changed
+
+- Room joining info uses `VITE_PUBLIC_APP_URL` instead of a hardcoded localhost URL
+
+### Fixed
+
+- Client no longer bundles Vite (`loadEnv`), which caused `__vite__injectQuery` to be declared twice
 
 ## [0.1.1] - 2026-08-26
 
