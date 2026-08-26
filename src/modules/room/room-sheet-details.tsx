@@ -1,7 +1,9 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
-import { toast } from "#/components/ui/toast";
-import { CopyIcon } from "lucide-react";
-import { Button } from "#/components/ui/button";
+import { CopyIcon } from 'lucide-react';
+
+import { Button } from '#/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '#/components/ui/sheet';
+import { toast } from '#/components/ui/toast';
+import { env } from '#/env';
 
 interface RoomSheetDetailsProps {
   roomId: string;
@@ -10,12 +12,14 @@ interface RoomSheetDetailsProps {
 }
 
 const RoomSheetDetails = ({ roomId, openInfoDrawer, setOpenInfoDrawer }: RoomSheetDetailsProps) => {
+  const ROOM_JOINING_INFO_URL = `${env.VITE_PUBLIC_APP_URL}/${roomId}`;
+
   const handleCopyJoiningInfo = () => {
-    void navigator.clipboard.writeText(`https://localhost:3000/${roomId}`);
+    void navigator.clipboard.writeText(ROOM_JOINING_INFO_URL);
 
     toast.add({
-      title: "Joining info copied to clipboard",
-      type: "success",
+      title: 'Joining info copied to clipboard',
+      type: 'success',
     });
   };
 
@@ -26,9 +30,9 @@ const RoomSheetDetails = ({ roomId, openInfoDrawer, setOpenInfoDrawer }: RoomShe
           <SheetTitle>Room Details</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-          <div className="py-8 space-y-2">
+          <div className="space-y-2 py-8">
             <div className="text-sm font-medium">Joining info</div>
-            <p className="text-xs font-mono text-muted-foreground">{`https://localhost:3000/${roomId}`}</p>
+            <p className="font-mono text-xs text-muted-foreground">{ROOM_JOINING_INFO_URL}</p>
           </div>
           <Button variant="outline" onClick={handleCopyJoiningInfo}>
             <CopyIcon /> Copy joining info

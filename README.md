@@ -14,10 +14,22 @@ Peer-to-peer real-time communication app. Join a room by code or link, then use 
 
 ```bash
 pnpm install
+cp .env.example .env
 pnpm dev
 ```
 
-App runs at [https://localhost:3000](https://localhost:3000) (self-signed cert; accept the browser warning once).
+App runs at [https://localhost:3000](https://localhost:3000).
+
+`@vitejs/plugin-basic-ssl` is self-signed, so the browser will always show **Not Secure**. Use [mkcert](https://github.com/FiloSottile/mkcert) instead:
+
+```bash
+brew install mkcert nss
+mkcert -install
+mkdir -p .cert
+mkcert -cert-file .cert/cert.pem -key-file .cert/key.pem localhost 127.0.0.1 ::1
+```
+
+Then restart `pnpm dev` and open a new tab. Vite+ trusts the mkcert CA through [`SSL_CERT_FILE` / `NODE_EXTRA_CA_CERTS`](https://viteplus.dev/guide/installer-env-vars#tls-ca-configuration). Do not set `VP_INSECURE_TLS` except as a local diagnostic.
 
 ### Scripts
 

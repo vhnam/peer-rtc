@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 
-export const LiveClock = () => {
+export const RoomClock = () => {
   const [now, setNow] = useState(() => dayjs());
 
   useEffect(() => {
@@ -9,5 +9,5 @@ export const LiveClock = () => {
     return () => clearInterval(id);
   }, []);
 
-  return <span>{now.format("hh:mm A")}</span>;
+  return <span>{now.format('hh:mm A')}</span>;
 };

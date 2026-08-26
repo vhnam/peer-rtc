@@ -1,7 +1,8 @@
-import { ChevronDownIcon, MicIcon, PhoneOffIcon, VideoIcon } from "lucide-react";
-import { ButtonGroup } from "#/components/ui/button-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
-import { Button } from "#/components/ui/button";
+import { ChevronDownIcon, MicIcon, PhoneOffIcon, VideoIcon } from 'lucide-react';
+
+import { Button } from '#/components/ui/button';
+import { ButtonGroup } from '#/components/ui/button-group';
+import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip';
 
 const RoomFooter = () => {
   return (

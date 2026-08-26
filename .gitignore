@@ -15,3 +15,4 @@ todos.json
 !.vscode/settings.json
 !.vscode/extensions.json
 .pnpm-store
+.cert

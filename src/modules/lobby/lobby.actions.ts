@@ -1,6 +1,7 @@
-import { LobbySchema } from "#/schemas/lobby.schema";
-import { useForm } from "@formisch/react";
-import { useRouter } from "@tanstack/react-router";
+import { useForm } from '@formisch/react';
+import { useRouter } from '@tanstack/react-router';
+
+import { LobbySchema } from '#/schemas/lobby.schema';
 
 export const useLobbyActions = () => {
   const router = useRouter();
@@ -8,7 +9,7 @@ export const useLobbyActions = () => {
   const form = useForm({
     schema: LobbySchema,
     initialInput: {
-      room_id: "",
+      room_id: '',
     },
   });
 

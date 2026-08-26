@@ -1,12 +1,12 @@
-import { Button } from "#/components/ui/button";
-import { Separator } from "#/components/ui/separator";
+import { InfoIcon } from 'lucide-react';
+import { useState } from 'react';
 
-import { InfoIcon } from "lucide-react";
-import { useState } from "react";
+import { Button } from '#/components/ui/button';
+import { Separator } from '#/components/ui/separator';
 
-import RoomFooter from "./room-footer";
-import RoomSheetDetails from "./room-sheet-details";
-import { LiveClock } from "#/components/live-clock";
+import { RoomClock } from './room-clock';
+import RoomFooter from './room-footer';
+import RoomSheetDetails from './room-sheet-details';
 
 interface RoomProps {
   roomId: string;
@@ -18,7 +18,7 @@ const Room = ({ roomId }: RoomProps) => {
   return (
     <div className="flex h-dvh flex-col">
       <div className="flex h-12 shrink-0 items-center gap-4 px-4 py-4 lg:px-6">
-        <LiveClock />
+        <RoomClock />
         <Separator orientation="vertical" />
         <span>{roomId}</span>
         <Button
@@ -32,16 +32,12 @@ const Room = ({ roomId }: RoomProps) => {
       </div>
 
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 lg:px-6">
-        <div className="aspect-video w-full max-h-full bg-primary [max-width:min(100%,calc((100dvh-8rem)*16/9))]" />
+        <div className="aspect-video max-h-full w-full max-w-[min(100%,calc((100dvh-8rem)*16/9))] bg-primary" />
       </div>
 
       <RoomFooter />
 
-      <RoomSheetDetails
-        roomId={roomId}
-        openInfoDrawer={openInfoDrawer}
-        setOpenInfoDrawer={setOpenInfoDrawer}
-      />
+      <RoomSheetDetails roomId={roomId} openInfoDrawer={openInfoDrawer} setOpenInfoDrawer={setOpenInfoDrawer} />
     </div>
   );
 };
