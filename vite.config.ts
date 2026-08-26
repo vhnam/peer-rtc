@@ -1,15 +1,15 @@
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 
 import { fmt } from './fmt.config';
+import { env } from './src/env';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,17 +23,21 @@ function mkcertRootCa() {
   }
 }
 
-const config = defineConfig(({ mode }) => {
-  const env = loadEnv(mode, root, '');
-  const certFile = path.resolve(root, env.SSL_CERT_FILE || '.cert/cert.pem');
-  const keyFile = path.resolve(root, env.SSL_KEY_FILE || '.cert/key.pem');
-  const caFile = path.resolve(root, env.NODE_EXTRA_CA_CERTS || mkcertRootCa() || env.SSL_CERT_FILE || '.cert/cert.pem');
+const config = defineConfig(({ command }) => {
+  process.env.NODE_EXTRA_CA_CERTS ??= mkcertRootCa();
 
-  // https://viteplus.dev/guide/installer-env-vars#tls-ca-configuration
-  process.env.SSL_CERT_FILE ??= certFile;
-  process.env.NODE_EXTRA_CA_CERTS ??= caFile;
+  const certFile = path.resolve(root, env.SSL_CERT_FILE);
+  const keyFile = path.resolve(root, env.SSL_KEY_FILE);
 
-  if (!fs.existsSync(certFile) || !fs.existsSync(keyFile)) {
+  const https =
+    command !== 'build' && fs.existsSync(certFile) && fs.existsSync(keyFile)
+      ? {
+          cert: fs.readFileSync(certFile),
+          key: fs.readFileSync(keyFile),
+        }
+      : undefined;
+
+  if (command !== 'build' && !https) {
     throw new Error(
       `Missing HTTPS cert/key (${certFile}, ${keyFile}).\n` +
         'The basic-ssl plugin is self-signed, so Chrome will keep showing Not Secure.\n' +
@@ -58,12 +62,7 @@ const config = defineConfig(({ mode }) => {
       viteReact(),
       babel({ presets: [reactCompilerPreset()] }),
     ]),
-    server: {
-      https: {
-        cert: fs.readFileSync(certFile),
-        key: fs.readFileSync(keyFile),
-      },
-    },
+    server: { https },
   };
 });
 

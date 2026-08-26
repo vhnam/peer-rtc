@@ -1,5 +1,5 @@
 {
-  "projectName": "peer-testing",
+  "projectName": "peer-rtc",
   "mode": "file-router",
   "typescript": true,
   "packageManager": "pnpm",
@@ -13,5 +13,9 @@
   "routerOnly": false,
   "version": 1,
   "framework": "react",
-  "chosenAddOns": ["compiler", "shadcn"]
+  "chosenAddOns": [
+    "compiler",
+    "shadcn",
+    "t3env"
+  ]
 }

@@ -14,6 +14,7 @@ Peer-to-peer real-time communication app. Join a room by code or link, then use 
 
 ```bash
 pnpm install
+cp .env.example .env
 pnpm dev
 ```
 
