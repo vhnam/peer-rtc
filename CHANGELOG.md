@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-08-27
+
+### Added
+
+- Local camera and microphone in the room, with footer toggles
+- Leave and rejoin the room, or go back to the lobby
+- Room header extracted from the room view
+- Favicon assets
+
+### Changed
+
+- New rooms use a short code (`xxxxxxxx-xxxx`) instead of a full UUID
+- Room route rejects invalid codes
+- Buttons use a pointer cursor
+- Generated `src/routeTree.gen.ts` is ignored by Oxfmt and Oxlint
+
+### Fixed
+
+- Camera and microphone no longer stay off after allowing permissions (React Strict Mode leave flag)
+
 ## [0.1.2] - 2026-08-26
 
 ### Added

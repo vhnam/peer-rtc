@@ -22,7 +22,8 @@ export const useLobbyActions = () => {
   };
 
   const createNewRoom = async () => {
-    await router.navigate({ to: `/${crypto.randomUUID()}` });
+    const code = crypto.randomUUID().slice(0, 13);
+    await router.navigate({ to: `/${code}` });
   };
 
   return {

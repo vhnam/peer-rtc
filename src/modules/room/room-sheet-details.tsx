@@ -7,11 +7,11 @@ import { env } from '#/env';
 
 interface RoomSheetDetailsProps {
   roomId: string;
-  openInfoDrawer: boolean;
-  setOpenInfoDrawer: (open: boolean) => void;
+  openInfoSheet: boolean;
+  setOpenInfoSheet: (open: boolean) => void;
 }
 
-const RoomSheetDetails = ({ roomId, openInfoDrawer, setOpenInfoDrawer }: RoomSheetDetailsProps) => {
+const RoomSheetDetails = ({ roomId, openInfoSheet, setOpenInfoSheet }: RoomSheetDetailsProps) => {
   const ROOM_JOINING_INFO_URL = `${env.VITE_PUBLIC_APP_URL}/${roomId}`;
 
   const handleCopyJoiningInfo = () => {
@@ -24,7 +24,7 @@ const RoomSheetDetails = ({ roomId, openInfoDrawer, setOpenInfoDrawer }: RoomShe
   };
 
   return (
-    <Sheet open={openInfoDrawer} onOpenChange={setOpenInfoDrawer}>
+    <Sheet open={openInfoSheet} onOpenChange={setOpenInfoSheet}>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Room Details</SheetTitle>

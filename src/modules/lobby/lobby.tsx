@@ -9,7 +9,7 @@ import { Field, FieldError } from '#/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '#/components/ui/input-group';
 import { toast } from '#/components/ui/toast';
 import { LobbySchema } from '#/schemas/lobby.schema';
-import { isURL, isUUID } from '#/utils/room';
+import { isValidCode, isValidURL } from '#/utils/room';
 
 import { useLobbyActions } from './lobby.actions';
 
@@ -18,9 +18,9 @@ const LobbyPage = () => {
 
   const handleSubmit: SubmitHandler<typeof LobbySchema> = async (data) => {
     try {
-      if (isUUID(data.room_id)) {
+      if (isValidCode(data.room_id)) {
         await joinRoomByCode(data.room_id);
-      } else if (isURL(data.room_id)) {
+      } else if (isValidURL(data.room_id)) {
         await joinRoomByURL(data.room_id);
       } else {
         throw new Error('Something went wrong during connecting room');
