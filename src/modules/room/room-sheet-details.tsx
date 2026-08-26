@@ -1,7 +1,8 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
-import { toast } from "#/components/ui/toast";
-import { CopyIcon } from "lucide-react";
-import { Button } from "#/components/ui/button";
+import { CopyIcon } from 'lucide-react';
+
+import { Button } from '#/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '#/components/ui/sheet';
+import { toast } from '#/components/ui/toast';
 
 interface RoomSheetDetailsProps {
   roomId: string;
@@ -14,8 +15,8 @@ const RoomSheetDetails = ({ roomId, openInfoDrawer, setOpenInfoDrawer }: RoomShe
     void navigator.clipboard.writeText(`https://localhost:3000/${roomId}`);
 
     toast.add({
-      title: "Joining info copied to clipboard",
-      type: "success",
+      title: 'Joining info copied to clipboard',
+      type: 'success',
     });
   };
 

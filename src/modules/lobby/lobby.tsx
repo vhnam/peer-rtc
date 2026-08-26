@@ -1,20 +1,17 @@
-import { Form, Field as FormischField } from "@formisch/react";
-import type { SubmitHandler } from "@formisch/react";
-import { KeyboardIcon, VideoIcon } from "lucide-react";
+import type { SubmitHandler } from '@formisch/react';
 
-import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
-import { Field, FieldError } from "#/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "#/components/ui/input-group";
-import { LobbySchema } from "#/schemas/lobby.schema";
-import { useLobbyActions } from "./lobby.actions";
-import { isURL, isUUID } from "#/utils/room";
-import { toast } from "#/components/ui/toast";
+import { Form, Field as FormischField } from '@formisch/react';
+import { KeyboardIcon, VideoIcon } from 'lucide-react';
+
+import { Button } from '#/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/components/ui/card';
+import { Field, FieldError } from '#/components/ui/field';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '#/components/ui/input-group';
+import { toast } from '#/components/ui/toast';
+import { LobbySchema } from '#/schemas/lobby.schema';
+import { isURL, isUUID } from '#/utils/room';
+
+import { useLobbyActions } from './lobby.actions';
 
 const LobbyPage = () => {
   const { form, joinRoomByCode, joinRoomByURL, createNewRoom } = useLobbyActions();
@@ -26,13 +23,13 @@ const LobbyPage = () => {
       } else if (isURL(data.room_id)) {
         await joinRoomByURL(data.room_id);
       } else {
-        throw new Error("Something went wrong during connecting room");
+        throw new Error('Something went wrong during connecting room');
       }
     } catch (error) {
       void toast.add({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        type: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        type: 'destructive',
       });
     }
   };
@@ -42,14 +39,12 @@ const LobbyPage = () => {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Peer RTC</CardTitle>
-          <CardDescription>
-            PeerRTC is a peer-to-peer real-time communication library.
-          </CardDescription>
+          <CardDescription>PeerRTC is a peer-to-peer real-time communication library.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form of={form} onSubmit={handleSubmit}>
             <div className="flex items-start gap-4">
-              <FormischField of={form} path={["room_id"]}>
+              <FormischField of={form} path={['room_id']}>
                 {(field) => (
                   <Field data-invalid={field.errors !== null}>
                     <InputGroup>
@@ -58,7 +53,7 @@ const LobbyPage = () => {
                       </InputGroupAddon>
                       <InputGroupInput
                         {...field.props}
-                        value={field.input ?? ""}
+                        value={field.input ?? ''}
                         placeholder="Enter a code or link"
                         aria-invalid={field.errors !== null}
                         autoComplete="off"
@@ -69,9 +64,7 @@ const LobbyPage = () => {
                         </InputGroupButton>
                       </InputGroupAddon>
                     </InputGroup>
-                    {field.errors && (
-                      <FieldError errors={field.errors.map((message) => ({ message }))} />
-                    )}
+                    {field.errors && <FieldError errors={field.errors.map((message) => ({ message }))} />}
                   </Field>
                 )}
               </FormischField>

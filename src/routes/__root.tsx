@@ -1,27 +1,28 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren } from 'react';
 
-import appCss from "#/styles/global.css?url";
-import { Toaster } from "#/components/ui/toast";
-import { TooltipProvider } from "#/components/ui/tooltip";
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+
+import { Toaster } from '#/components/ui/toast';
+import { TooltipProvider } from '#/components/ui/tooltip';
+import appCss from '#/styles/global.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        charSet: "utf-8",
+        charSet: 'utf-8',
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
       },
       {
-        title: "Peer RTC",
+        title: 'Peer RTC',
       },
     ],
     links: [
       {
-        rel: "stylesheet",
+        rel: 'stylesheet',
         href: appCss,
       },
     ],

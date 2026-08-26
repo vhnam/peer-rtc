@@ -1,7 +1,8 @@
-import { Room } from "#/modules/room";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/$roomId")({
+import { Room } from '#/modules/room';
+
+export const Route = createFileRoute('/$roomId')({
   component: RouteComponent,
 });
 

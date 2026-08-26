@@ -1,1 +1,1 @@
-export { default as LobbyPage } from "./lobby";
+export { default as LobbyPage } from './lobby';
