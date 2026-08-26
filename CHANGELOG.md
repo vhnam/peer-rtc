@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Oxc formatter config (`fmt.config.ts`) and format-on-save via the Oxc VS Code extension
+- Vite+ TLS/CA env (`SSL_CERT_FILE`, `NODE_EXTRA_CA_CERTS`) so the toolchain trusts the local HTTPS cert
 
 ### Changed
 
 - Live clock colocated as `RoomClock` in the room module
 - Format app and UI sources to Oxc style (single quotes, import groups, print width)
+- Dev HTTPS uses mkcert `localhost` certs instead of `@vitejs/plugin-basic-ssl` (self-signed certs stay **Not Secure** in Chrome)
 
 ## [0.1.0] - 2026-08-26
 
