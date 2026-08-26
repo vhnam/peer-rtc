@@ -3,9 +3,10 @@ import { Separator } from "#/components/ui/separator";
 
 import { InfoIcon } from "lucide-react";
 import { useState } from "react";
-import dayjs from "dayjs";
+
 import RoomFooter from "./room-footer";
 import RoomSheetDetails from "./room-sheet-details";
+import { LiveClock } from "#/components/live-clock";
 
 interface RoomProps {
   roomId: string;
@@ -17,10 +18,15 @@ const Room = ({ roomId }: RoomProps) => {
   return (
     <div className="flex h-dvh flex-col">
       <div className="flex h-12 shrink-0 items-center gap-4 px-4 py-4 lg:px-6">
-        <span>{dayjs().format("hh:mm A")}</span>
+        <LiveClock />
         <Separator orientation="vertical" />
         <span>{roomId}</span>
-        <Button className="text-primary hover:text-primary/80" size="icon" variant="ghost" onClick={() => setOpenInfoDrawer(true)}>
+        <Button
+          className="text-primary hover:text-primary/80"
+          size="icon"
+          variant="ghost"
+          onClick={() => setOpenInfoDrawer(true)}
+        >
           <InfoIcon />
         </Button>
       </div>
