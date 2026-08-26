@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- t3-env (`src/env.ts`) to validate server TLS env vars with Valibot
+- t3-env (`src/env.ts`) to validate `VITE_PUBLIC_APP_URL` with Valibot
+- TLS cert env (`SSL_CERT_FILE`, `SSL_KEY_FILE`) validated in `vite.config.ts`
 
 ## [0.1.1] - 2026-08-26
 

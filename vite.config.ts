@@ -1,15 +1,16 @@
-import babel from '@rolldown/plugin-babel';
-import tailwindcss from '@tailwindcss/vite';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, lazyPlugins } from 'vite-plus';
+
+import babel from '@rolldown/plugin-babel';
+import tailwindcss from '@tailwindcss/vite';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
+import * as v from 'valibot';
+import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
 
 import { fmt } from './fmt.config';
-import { env } from './src/env';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,11 +24,25 @@ function mkcertRootCa() {
   }
 }
 
-const config = defineConfig(({ command }) => {
+const tlsEnvSchema = v.object({
+  SSL_CERT_FILE: v.pipe(v.string(), v.minLength(1)),
+  SSL_KEY_FILE: v.pipe(v.string(), v.minLength(1)),
+});
+
+const config = defineConfig(({ command, mode }) => {
   process.env.NODE_EXTRA_CA_CERTS ??= mkcertRootCa();
 
-  const certFile = path.resolve(root, env.SSL_CERT_FILE);
-  const keyFile = path.resolve(root, env.SSL_KEY_FILE);
+  for (const [key, value] of Object.entries(loadEnv(mode, root, ''))) {
+    process.env[key] ??= value;
+  }
+
+  const tlsEnv = v.parse(tlsEnvSchema, {
+    SSL_CERT_FILE: process.env.SSL_CERT_FILE,
+    SSL_KEY_FILE: process.env.SSL_KEY_FILE,
+  });
+
+  const certFile = path.resolve(root, tlsEnv.SSL_CERT_FILE);
+  const keyFile = path.resolve(root, tlsEnv.SSL_KEY_FILE);
 
   const https =
     command !== 'build' && fs.existsSync(certFile) && fs.existsSync(keyFile)
