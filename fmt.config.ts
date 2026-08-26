@@ -18,14 +18,27 @@ export const fmt: OxfmtConfig = {
     },
   ],
   sortImports: {
+    customGroups: [
+      {
+        groupName: 'node',
+        elementNamePattern: ['node:*', 'node:*/**'],
+      },
+    ],
     groups: [
+      'node',
       'type-import',
-      ['value-builtin', 'value-external'],
+      'value-builtin',
+      'value-external',
       'type-internal',
       'value-internal',
       ['type-parent', 'type-sibling', 'type-index'],
       ['value-parent', 'value-sibling', 'value-index'],
       'unknown',
     ],
+  },
+  sortTailwindcss: {
+    stylesheet: './src/styles/global.css',
+    functions: ['clsx', 'cn', 'cva'],
+    preserveWhitespace: true,
   },
 };

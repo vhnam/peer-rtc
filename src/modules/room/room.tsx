@@ -32,7 +32,7 @@ const Room = ({ roomId }: RoomProps) => {
       </div>
 
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 lg:px-6">
-        <div className="aspect-video w-full max-h-full bg-primary max-w-[min(100%,calc((100dvh-8rem)*16/9))]" />
+        <div className="aspect-video max-h-full w-full max-w-[min(100%,calc((100dvh-8rem)*16/9))] bg-primary" />
       </div>
 
       <RoomFooter />
