@@ -20,9 +20,14 @@ export const useLobbyActions = () => {
     await router.navigate({ to: url });
   };
 
+  const createNewRoom = async () => {
+    await router.navigate({ to: `/${crypto.randomUUID()}` });
+  };
+
   return {
     form,
     joinRoomByCode,
     joinRoomByURL,
+    createNewRoom,
   };
 };
