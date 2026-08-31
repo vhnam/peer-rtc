@@ -10,10 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Join a PeerJS room by code after local camera and microphone start
+- Auth screens and routes for login, register, forgot password, and reset password
+- Remote peer video in the room view
+
+### Changed
+
+- Lobby form validates the short room code format (`xxxxxxxx-xxxx`)
+- Room media and PeerJS session live in `src/lib/video-call`
 
 ### Fixed
 
 - Vite can resolve PeerJS (`peerjs-js-binarypack`) under pnpm
+- Dev `/api/auth` is proxied through the app HTTPS origin so Chrome does not fail TLS against the auth server's self-signed certificate
 
 ## [0.1.3] - 2026-08-27
 
