@@ -37,6 +37,8 @@
             {
               "groupName": "peer-rtc",
               "elementNamePattern": [
+                "@peer-rtc/auth",
+                "@peer-rtc/auth/**",
                 "@peer-rtc/query",
                 "@peer-rtc/query/**",
                 "@peer-rtc/ui/**"
@@ -75,6 +77,8 @@
       {
         "groupName": "windwise",
         "elementNamePattern": [
+          "@peer-rtc/auth",
+          "@peer-rtc/auth/**",
           "@peer-rtc/query",
           "@peer-rtc/query/**",
           "@peer-rtc/ui/**",
