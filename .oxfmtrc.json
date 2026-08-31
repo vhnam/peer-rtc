@@ -1,0 +1,110 @@
+{
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "ignorePatterns": ["**/routeTree.gen.ts", "./.claude/**", "./.changeset/**"],
+  "overrides": [
+    {
+      "files": ["**/*.{ts,tsx,js,jsx}"],
+      "options": {
+        "singleQuote": true
+      }
+    },
+    {
+      "files": ["**/*.{md,mdx}"],
+      "options": {
+        "printWidth": 80,
+        "proseWrap": "always"
+      }
+    },
+    {
+      "files": ["apps/**"],
+      "options": {
+        "sortImports": {
+          "customGroups": [
+            {
+              "groupName": "css-url",
+              "elementNamePattern": ["@peer-rtc/ui"]
+            },
+            {
+              "groupName": "side_effect_style",
+              "selector": "side_effect_style"
+            },
+            {
+              "groupName": "peer-rtc",
+              "elementNamePattern": [
+                "@peer-rtc/query",
+                "@peer-rtc/query/**",
+                "@peer-rtc/ui/**"
+              ]
+            },
+            {
+              "groupName": "app",
+              "elementNamePattern": ["#/**"]
+            }
+          ],
+          "newlinesBetween": true,
+          "groups": [
+            "builtin",
+            "external",
+            "peer-rtc",
+            "app",
+            "css-url",
+            ["style", "side_effect_style"],
+            ["parent", "sibling", "index"],
+            "unknown"
+          ]
+        }
+      }
+    }
+  ],
+  "sortImports": {
+    "customGroups": [
+      {
+        "groupName": "css-url",
+        "elementNamePattern": ["@peer-rtc/ui"]
+      },
+      {
+        "groupName": "side_effect_style",
+        "selector": "side_effect_style"
+      },
+      {
+        "groupName": "windwise",
+        "elementNamePattern": [
+          "@peer-rtc/query",
+          "@peer-rtc/query/**",
+          "@peer-rtc/ui/**",
+          "@peer-rtc/schemas",
+          "@peer-rtc/schemas/**",
+          "@peer-rtc/core",
+          "@peer-rtc/core/**",
+          "@peer-rtc/db",
+          "@peer-rtc/db/**",
+          "@peer-rtc/ai",
+          "@peer-rtc/ai/**",
+          "@peer-rtc/vite-config",
+          "@peer-rtc/vite-config/**"
+        ]
+      },
+      {
+        "groupName": "app",
+        "elementNamePattern": ["#/**"]
+      }
+    ],
+    "newlinesBetween": true,
+    "groups": [
+      "builtin",
+      "external",
+      "windwise",
+      "app",
+      "css-url",
+      ["style", "side_effect_style"],
+      ["parent", "sibling", "index"],
+      "unknown"
+    ]
+  }
+}
