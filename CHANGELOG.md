@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- ab65bc3: Join a PeerJS room after local camera and microphone start. Lobby codes must match `xxxxxxxx-xxxx`. Auth routes for login, register, forgot password, and reset password are registered so typed `Link` targets resolve. In development, `/api/auth` is proxied through the Vite HTTPS origin so the browser does not hit the auth server's self-signed certificate.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
