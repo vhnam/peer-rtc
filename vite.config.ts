@@ -44,6 +44,21 @@ const config = defineConfig(({ command, mode }) => {
   const certFile = path.resolve(root, tlsEnv.SSL_CERT_FILE);
   const keyFile = path.resolve(root, tlsEnv.SSL_KEY_FILE);
 
+  const authProxyTarget = (() => {
+    const authUrl = process.env.VITE_PUBLIC_AUTH_URL;
+    if (!authUrl) {
+      return undefined;
+    }
+
+    const parsed = new URL(authUrl);
+    // Node's HTTP proxy prefers IPv6 for `localhost`, but the auth server
+    // often listens on IPv4 only (ECONNREFUSED on ::1).
+    if (parsed.hostname === 'localhost') {
+      parsed.hostname = '127.0.0.1';
+    }
+    return parsed.origin;
+  })();
+
   const https =
     command !== 'build' && fs.existsSync(certFile) && fs.existsSync(keyFile)
       ? {
@@ -91,7 +106,18 @@ const config = defineConfig(({ command, mode }) => {
       viteReact(),
       babel({ presets: [reactCompilerPreset()] }),
     ]),
-    server: { https },
+    server: {
+      https,
+      proxy: authProxyTarget
+        ? {
+            '/api/auth': {
+              target: authProxyTarget,
+              changeOrigin: true,
+              secure: false,
+            },
+          }
+        : undefined,
+    },
   };
 });
 
