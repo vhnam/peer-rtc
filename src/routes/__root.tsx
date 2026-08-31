@@ -1,12 +1,14 @@
 import type { PropsWithChildren } from 'react';
 
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
+
+import type { QueryRouterContext } from '#/lib/query';
 
 import { Toaster } from '#/components/ui/toast';
 import { TooltipProvider } from '#/components/ui/tooltip';
 import appCss from '#/styles/global.css?url';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<QueryRouterContext>()({
   head: () => ({
     meta: [
       {
@@ -28,6 +30,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 });
 
 function RootDocument({ children }: PropsWithChildren) {
@@ -43,4 +46,8 @@ function RootDocument({ children }: PropsWithChildren) {
       </body>
     </html>
   );
+}
+
+function NotFound() {
+  return <div>Not Found</div>;
 }
