@@ -1,6 +1,6 @@
 import { useRouter } from '@tanstack/react-router';
 
-import { useResetPasswordMutation } from '#/queries/auth';
+import { useResetPasswordMutation } from '@peer-rtc/auth';
 
 export const useResetPasswordFormActions = () => {
   const router = useRouter();

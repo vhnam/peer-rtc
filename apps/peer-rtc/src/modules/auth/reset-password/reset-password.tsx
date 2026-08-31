@@ -2,6 +2,7 @@ import { Field as FormischField, Form, setErrors, useForm, type SubmitHandler } 
 import { Link } from '@tanstack/react-router';
 import { InfoIcon } from 'lucide-react';
 
+import { ResetPasswordSchema } from '@peer-rtc/auth';
 import { Alert, AlertDescription, AlertTitle } from '@peer-rtc/ui/components/alert';
 import { Button } from '@peer-rtc/ui/components/button';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@peer-rtc/ui/components/field';
@@ -9,7 +10,6 @@ import { PasswordInput } from '@peer-rtc/ui/components/password-input';
 
 import { AuthScreen } from '#/components/auth-screen';
 import { fieldErrorMessage } from '#/lib/utils';
-import { ResetPasswordSchema } from '#/schemas/reset-password.schema';
 
 import { useResetPasswordFormActions } from './reset-password.actions';
 

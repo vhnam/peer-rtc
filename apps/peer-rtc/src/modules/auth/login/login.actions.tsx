@@ -1,7 +1,6 @@
 import { useRouter } from '@tanstack/react-router';
 
-import { useLoginMutation } from '#/queries/auth';
-import type { LoginSchemaType } from '#/schemas/login.schema';
+import { useLoginMutation, type LoginSchemaType } from '@peer-rtc/auth';
 
 export const useLoginFormActions = () => {
   const router = useRouter();

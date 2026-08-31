@@ -1,3 +1,5 @@
-import { createAuthClient } from 'better-auth/react';
+import { createPeerAuthClient } from '@peer-rtc/auth';
 
-export const authClient = createAuthClient();
+import { env } from '#/env';
+
+export const authClient = createPeerAuthClient(env.VITE_PUBLIC_AUTH_URL);

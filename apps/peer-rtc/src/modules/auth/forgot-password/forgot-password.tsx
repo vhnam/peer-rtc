@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
 
+import { ForgotPasswordSchema } from '@peer-rtc/auth';
 import { Alert, AlertDescription, AlertTitle } from '@peer-rtc/ui/components/alert';
 import { Button } from '@peer-rtc/ui/components/button';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@peer-rtc/ui/components/field';
@@ -10,7 +11,6 @@ import { Input } from '@peer-rtc/ui/components/input';
 
 import { AuthScreen } from '#/components/auth-screen';
 import { fieldErrorMessage } from '#/lib/utils';
-import { ForgotPasswordSchema } from '#/schemas/forgot-password.schema';
 
 import { useForgotPasswordFormActions } from './forgot-password.actions';
 

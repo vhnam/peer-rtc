@@ -1,15 +1,15 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router';
 
+import AuthLayout from '#/layouts/auth-layout';
+
 export const Route = createFileRoute('/auth')({
-  component: AuthLayout,
+  component: AuthRouteLayout,
 });
 
-function AuthLayout() {
+function AuthRouteLayout() {
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <Outlet />
-      </div>
-    </div>
+    <AuthLayout>
+      <Outlet />
+    </AuthLayout>
   );
 }
