@@ -1,5 +1,7 @@
 import type { DataConnection, Peer, PeerErrorType } from 'peerjs';
 
+import type { CallRole } from './types';
+
 const whenPeerOpen = (peer: Peer) => {
   if (peer.open) {
     return Promise.resolve(peer.id);
@@ -44,32 +46,23 @@ const isUnavailableIdError = (error: unknown, unavailableId: PeerErrorType) => {
   return typeof error === 'object' && error !== null && 'type' in error && error.type === unavailableId;
 };
 
-const attachMedia = (peer: Peer, roomId: string, getLocalStream?: () => MediaStream | null) => {
-  peer.on('call', (call) => {
-    call.answer(getLocalStream?.() ?? undefined);
-  });
+export interface PeerSession {
+  peer: Peer;
+  role: CallRole;
+}
 
-  if (peer.id === roomId) {
-    return;
-  }
-
-  const stream = getLocalStream?.();
-  if (!stream || stream.getTracks().length === 0) {
-    return;
-  }
-
-  peer.call(roomId, stream);
-};
-
-export const joinPeerRoom = async (roomId: string, getLocalStream?: () => MediaStream | null) => {
+/**
+ * Claims `roomId` as a Peer id if free (host); otherwise falls back to a
+ * random id and opens a data connection to the room's host (guest).
+ */
+export const joinPeerSession = async (roomId: string): Promise<PeerSession> => {
   const { Peer, PeerErrorType } = await import('peerjs');
 
   const hostPeer = new Peer(roomId);
 
   try {
     await whenPeerOpen(hostPeer);
-    attachMedia(hostPeer, roomId, getLocalStream);
-    return hostPeer;
+    return { peer: hostPeer, role: 'host' };
   } catch (error: unknown) {
     hostPeer.destroy();
     if (!isUnavailableIdError(error, PeerErrorType.UnavailableID)) {
@@ -87,6 +80,5 @@ export const joinPeerRoom = async (roomId: string, getLocalStream?: () => MediaS
     throw error;
   }
 
-  attachMedia(guestPeer, roomId, getLocalStream);
-  return guestPeer;
+  return { peer: guestPeer, role: 'guest' };
 };

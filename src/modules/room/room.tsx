@@ -2,43 +2,53 @@ import { useRouter } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '#/components/ui/button';
+import { useVideoCall } from '#/lib/video-call';
 
 import { RoomFooter } from './room-footer';
 import RoomHeader from './room-header';
 import RoomSheetDetails from './room-sheet-details';
-import { useRoomActions } from './room.actions';
 
 interface RoomProps {
   roomId: string;
 }
 
+const bindVideo = (video: HTMLVideoElement | null, stream: MediaStream | null) => {
+  if (!video) {
+    return;
+  }
+
+  video.srcObject = stream;
+  if (stream) {
+    void video.play().catch(() => {});
+  }
+};
+
 const Room = ({ roomId }: RoomProps) => {
   const router = useRouter();
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   const [openInfoSheet, setOpenInfoSheet] = useState(false);
   const [inRoom, setInRoom] = useState(true);
 
   const {
+    localStream,
+    remoteStream,
     isMicrophoneEnabled,
     isCameraEnabled,
-    startLocalVideo,
-    startLocalAudio,
+    join,
+    leave,
     toggleMicrophone,
     toggleCamera,
-    leaveRoom,
-    rejoinRoom,
-    joinRoom,
-  } = useRoomActions();
+  } = useVideoCall();
 
   const handleLeaveRoom = () => {
-    leaveRoom();
+    leave();
     setInRoom(false);
   };
 
   const handleRejoinRoom = () => {
-    rejoinRoom();
     setInRoom(true);
   };
 
@@ -51,48 +61,18 @@ const Room = ({ roomId }: RoomProps) => {
       return;
     }
 
-    const localVideo = localVideoRef.current;
-    if (!localVideo) {
-      return;
-    }
+    void join(roomId).catch((error: unknown) => {
+      console.error(error);
+    });
+  }, [inRoom, join, roomId]);
 
-    let cancelled = false;
+  useEffect(() => {
+    bindVideo(localVideoRef.current, localStream);
+  }, [localStream]);
 
-    void (async () => {
-      let cameraStarted = false;
-      let microphoneStarted = false;
-
-      try {
-        cameraStarted = await startLocalVideo(localVideo);
-      } catch (error: unknown) {
-        console.error(error);
-      }
-
-      if (cancelled) {
-        return;
-      }
-
-      try {
-        microphoneStarted = await startLocalAudio();
-      } catch (error: unknown) {
-        console.error(error);
-      }
-
-      if (cancelled || (!cameraStarted && !microphoneStarted)) {
-        return;
-      }
-
-      try {
-        await joinRoom(roomId);
-      } catch (error: unknown) {
-        console.error(error);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [inRoom, joinRoom, roomId, startLocalAudio, startLocalVideo]);
+  useEffect(() => {
+    bindVideo(remoteVideoRef.current, remoteStream);
+  }, [remoteStream]);
 
   if (!inRoom) {
     return (
@@ -111,8 +91,12 @@ const Room = ({ roomId }: RoomProps) => {
     <div className="flex h-dvh flex-col">
       <RoomHeader roomId={roomId} setOpenInfoSheet={setOpenInfoSheet} />
 
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 lg:px-6">
-        <div className="aspect-video max-h-full w-full max-w-[min(100%,calc((100dvh-8rem)*16/9))] overflow-hidden">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 lg:px-6">
+        <div className="aspect-video max-h-full w-full max-w-[min(100%,calc((100dvh-8rem)*16/9))] overflow-hidden bg-muted">
+          <video ref={remoteVideoRef} className="size-full object-cover" autoPlay playsInline />
+        </div>
+
+        <div className="absolute right-6 bottom-6 aspect-video w-32 overflow-hidden rounded-md shadow-lg sm:w-48">
           <video ref={localVideoRef} className="size-full object-cover" autoPlay playsInline muted />
         </div>
       </div>
