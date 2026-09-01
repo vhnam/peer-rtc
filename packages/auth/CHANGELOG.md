@@ -4,5 +4,5 @@
 
 ### Minor Changes
 
-- fa251b9: Extract shared Better Auth client, schemas, and query helpers, and
+- c294674: Extract shared Better Auth client, schemas, and query helpers, and
   add a dashboard app that consumes the same package.

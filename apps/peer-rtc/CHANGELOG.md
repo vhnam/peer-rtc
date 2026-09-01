@@ -4,6 +4,6 @@
 
 ### Patch Changes
 
-- 2c38ded: Move the room app onto shared auth and protected layouts.
-- 33e171e: Add favicons and wire them into the document head.
-- 703f026: Polish the protected shell with a sticky top nav.
+- 83d4621: Move the room app onto shared auth and protected layouts.
+- 30f484d: Add favicons and wire them into the document head.
+- b69cf45: Polish the protected shell with a sticky top nav.
