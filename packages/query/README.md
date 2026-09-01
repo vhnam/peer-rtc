@@ -1,23 +1,33 @@
-# vite-plus-starter
+# `@peer-rtc/query`
 
-A starter for creating a Vite Plus project.
+Shared TanStack Query client and router factory for Peer RTC apps.
 
-## Development
+`createQueryRouter(routeTree)` builds a QueryClient (60s stale time), a TanStack
+Router with that client on `context`, and SSR query integration.
 
-- Install dependencies:
+```ts
+import { createQueryRouter } from "@peer-rtc/query";
+import type { QueryRouterContext } from "@peer-rtc/query";
 
-```bash
-vp install
+import { routeTree } from "./routeTree.gen";
+
+export const getRouter = () => createQueryRouter(routeTree);
 ```
 
-- Run the unit tests:
+Root routes should use `createRootRouteWithContext<QueryRouterContext>()`.
+
+## Scripts
+
+From the repo root:
 
 ```bash
-vp test
+vp run @peer-rtc/query#build
+vp run @peer-rtc/query#test
+vp run @peer-rtc/query#check
 ```
 
-- Build the library:
+Watch the packed library:
 
 ```bash
-vp pack
+vp run @peer-rtc/query#dev
 ```

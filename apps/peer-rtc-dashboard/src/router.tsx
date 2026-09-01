@@ -1,6 +1,7 @@
 import { createQueryRouter } from '@peer-rtc/query';
 
 import '#/lib/auth-client';
+
 import { routeTree } from './routeTree.gen';
 
 export function getRouter() {

@@ -2,7 +2,6 @@ import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
 import { BookOpen, ListChecks, ShieldAlert, Users, type LucideIcon } from 'lucide-react';
 
 import { signOut } from '@peer-rtc/auth';
-import { authClient } from '#/lib/auth-client';
 import { Avatar, AvatarFallback, AvatarImage } from '@peer-rtc/ui/components/avatar';
 import {
   DropdownMenu,
@@ -26,6 +25,8 @@ import {
   SidebarRail,
   useSidebar,
 } from '@peer-rtc/ui/components/sidebar';
+
+import { authClient } from '#/lib/auth-client';
 
 type NavUrl = '/catalog' | '/catalog/review' | '/verification-queue' | '/settings/members';
 

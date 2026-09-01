@@ -1,5 +1,6 @@
-import { authClient } from '#/lib/auth-client';
 import { SidebarTrigger } from '@peer-rtc/ui/components/sidebar';
+
+import { authClient } from '#/lib/auth-client';
 
 export const ProtectedLayoutHeader = () => {
   const { data: session } = authClient.useSession();

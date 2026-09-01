@@ -1,23 +1,40 @@
-# vite-plus-starter
+# `@peer-rtc/auth`
 
-A starter for creating a Vite Plus project.
+Shared Better Auth client, Valibot schemas, session helpers, and TanStack Query
+hooks for Peer RTC apps.
 
-## Development
+## Exports
 
-- Install dependencies:
+| Import                  | Contents                                                               |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `@peer-rtc/auth`        | `createPeerAuthClient`, `getAuthClient`, schemas, service, query hooks |
+| `@peer-rtc/auth/server` | `auth` server instance (`betterAuth` + TanStack Start cookies)         |
 
-```bash
-vp install
+Call `createPeerAuthClient(baseURL)` once per app (typically with
+`env.VITE_PUBLIC_AUTH_URL`). Later code uses `getAuthClient()`.
+
+```ts
+import { createPeerAuthClient } from "@peer-rtc/auth";
+
+export const authClient = createPeerAuthClient(env.VITE_PUBLIC_AUTH_URL);
 ```
 
-- Run the unit tests:
+Query helpers include `currentSessionQueryOptions`, `useLoginMutation`,
+`useRegisterMutation`, `useForgotPasswordMutation`, and
+`useResetPasswordMutation`.
+
+## Scripts
+
+From the repo root:
 
 ```bash
-vp test
+vp run @peer-rtc/auth#build
+vp run @peer-rtc/auth#test
+vp run @peer-rtc/auth#check
 ```
 
-- Build the library:
+Watch the packed library:
 
 ```bash
-vp pack
+vp run @peer-rtc/auth#dev
 ```
