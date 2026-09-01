@@ -1,5 +1,5 @@
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
-import { BookOpen, type LucideIcon } from 'lucide-react';
+import { BookOpen, ClipboardList, type LucideIcon } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@peer-rtc/ui/components/avatar';
 import {
@@ -27,10 +27,11 @@ import {
 
 import { authClient } from '#/lib/auth-client';
 
-type NavUrl = '/';
+type NavUrl = '/' | '/consult-requests';
 
 const NAV_ITEMS: Array<{ title: string; url: NavUrl; icon: LucideIcon }> = [
   { title: 'Home', url: '/', icon: BookOpen },
+  { title: 'Consult requests', url: '/consult-requests', icon: ClipboardList },
 ];
 
 const getInitials = (name: string) => {

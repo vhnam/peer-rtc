@@ -1,5 +1,16 @@
 # @peer-rtc/app
 
+## 0.1.0
+
+### Minor Changes
+
+- 6ca7443: Add consult-request listing, filters, and pagination for consumers and operators.
+
+### Patch Changes
+
+- Updated dependencies [6ca7443]
+  - @peer-rtc/ui@0.0.1
+
 ## 0.0.0
 
 ### Patch Changes

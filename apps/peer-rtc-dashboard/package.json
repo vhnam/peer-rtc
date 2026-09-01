@@ -1,6 +1,6 @@
 {
   "name": "@peer-rtc/dashboard",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "imports": {
@@ -21,6 +21,8 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
+    "@tanstack/react-table": "catalog:",
+    "dayjs": "catalog:",
     "lucide-react": "catalog:",
     "peerjs": "catalog:",
     "peerjs-js-binarypack": "catalog:",
