@@ -22,6 +22,16 @@ export const Route = createRootRouteWithContext<QueryRouterContext>()({
     ],
     links: [
       {
+        rel: 'icon',
+        href: '/favicon.ico',
+        sizes: 'any',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/favicon.png',
+      },
+      {
         rel: 'stylesheet',
         href: appCss,
       },

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run website#dev"
+    "dev": "vp run @peer-rtc/app#dev",
+    "dev:dashboard": "vp run @peer-rtc/dashboard#dev"
   },
   "dependencies": {
     "@t3-oss/env-core": "catalog:",

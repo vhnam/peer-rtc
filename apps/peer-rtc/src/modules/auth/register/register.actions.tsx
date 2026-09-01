@@ -1,7 +1,6 @@
 import { useRouter } from '@tanstack/react-router';
 
-import { useRegisterMutation } from '#/queries/auth';
-import type { RegisterSchemaType } from '#/schemas/register.schema';
+import { useRegisterMutation, type RegisterSchemaType } from '@peer-rtc/auth';
 
 export const useRegisterFormActions = () => {
   const router = useRouter();
