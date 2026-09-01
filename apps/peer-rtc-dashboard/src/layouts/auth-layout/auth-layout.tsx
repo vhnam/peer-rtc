@@ -5,12 +5,12 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
     <div className="flex min-h-svh flex-col bg-background px-4 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-8">
         <img
-          src="/logo.png"
+          src="/favicon.png"
           alt="Peer RTC - Dashboard"
           width={944}
           height={264}
           decoding="async"
-          className="h-12 w-auto mx-auto lg:h-16 dark:invert dark:hue-rotate-180"
+          className="h-12 w-auto mx-auto rounded-sm lg:h-16 dark:invert dark:hue-rotate-180"
         />
         {children}
       </div>

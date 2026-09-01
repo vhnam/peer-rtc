@@ -61,15 +61,15 @@ export function AppSidebar() {
             <SidebarMenuButton size="lg" render={<Link to="/" />}>
               <img
                 src="/favicon.png"
-                alt="WindWise"
+                alt="Peer RTC - Dashboard"
                 width={32}
                 height={32}
                 decoding="async"
-                className="size-8 rounded-md object-contain object-left dark:invert dark:hue-rotate-180"
+                className="size-8 rounded-sm object-contain object-left dark:invert dark:hue-rotate-180"
               />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">WindWise</span>
-                <span className="truncate text-xs text-muted-foreground">Manager dashboard</span>
+                <span className="truncate font-medium">Peer RTC</span>
+                <span className="truncate text-xs text-muted-foreground">Dashboard</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -119,10 +119,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
               <DropdownMenuContent side={isMobile ? 'bottom' : 'right'} align="end" className="min-w-56">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>
-                    {displayName}
-                    {displayEmail ? <span className="mt-1 block font-normal">{displayEmail}</span> : null}
-                  </DropdownMenuLabel>
+                  <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
