@@ -1,5 +1,11 @@
 # @peer-rtc/ui
 
+## 0.0.1
+
+### Patch Changes
+
+- 6ca7443: Add consult-request listing, filters, and pagination for consumers and operators.
+
 ## 0.0.0
 
 ### Patch Changes
