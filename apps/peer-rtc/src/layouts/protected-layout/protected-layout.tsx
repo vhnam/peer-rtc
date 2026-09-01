@@ -96,7 +96,7 @@ export default function ProtectedLayout({ children }: PropsWithChildren) {
           ) : null}
         </div>
       </header>
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main className="flex min-w-0 flex-1 flex-col">{children}</main>
     </div>
   );
 }

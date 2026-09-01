@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as ProtectedConsultRequestsRouteImport } from './routes/_protected/consult-requests'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -30,6 +31,12 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedConsultRequestsRoute =
+  ProtectedConsultRequestsRouteImport.update({
+    id: '/consult-requests',
+    path: '/consult-requests',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -49,12 +56,14 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
+  '/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -64,6 +73,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/_protected/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -74,12 +84,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -88,6 +100,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_protected'
     | '/auth'
+    | '/_protected/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/consult-requests': {
+      id: '/_protected/consult-requests'
+      path: '/consult-requests'
+      fullPath: '/consult-requests'
+      preLoaderRoute: typeof ProtectedConsultRequestsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/auth/forgot-password': {
       id: '/auth/forgot-password'
       path: '/forgot-password'
@@ -147,10 +167,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface ProtectedRouteChildren {
+  ProtectedConsultRequestsRoute: typeof ProtectedConsultRequestsRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedConsultRequestsRoute: ProtectedConsultRequestsRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
 }
 

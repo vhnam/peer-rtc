@@ -21,6 +21,8 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
+    "@tanstack/react-table": "catalog:",
+    "dayjs": "catalog:",
     "lucide-react": "catalog:",
     "peerjs": "catalog:",
     "peerjs-js-binarypack": "catalog:",

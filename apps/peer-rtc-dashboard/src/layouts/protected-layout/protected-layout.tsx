@@ -9,9 +9,9 @@ export default function ProtectedLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <ProtectedLayoutHeader />
-        <div className="flex-1 px-4 pb-8">{children}</div>
+        <div className="min-w-0 flex-1 px-4 pb-8">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

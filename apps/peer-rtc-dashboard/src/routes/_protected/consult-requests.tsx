@@ -8,27 +8,16 @@ import { Skeleton } from '@peer-rtc/ui/components/skeleton';
 
 import {
   ConsultRequestsPage,
-  DEFAULT_CONSULT_REQUEST_LIMIT,
-  DEFAULT_CONSULT_REQUEST_PAGE,
-  DEFAULT_CONSULT_REQUEST_STATUS,
-  DEFAULT_CONSULT_REQUEST_TIME,
   consultRequestsQueryOptions,
   parseConsultRequestsSearch,
 } from '#/modules/consult-requests';
 
-export const Route = createFileRoute('/_protected/')({
+export const Route = createFileRoute('/_protected/consult-requests')({
   validateSearch: parseConsultRequestsSearch,
   loaderDeps: ({ search }) => search,
   loader: ({ context: { queryClient, user }, deps }) =>
     queryClient.query({
-      ...consultRequestsQueryOptions({
-        page: deps.page ?? DEFAULT_CONSULT_REQUEST_PAGE,
-        limit: deps.limit ?? DEFAULT_CONSULT_REQUEST_LIMIT,
-        status: deps.status ?? DEFAULT_CONSULT_REQUEST_STATUS,
-        time: deps.time ?? DEFAULT_CONSULT_REQUEST_TIME,
-        requestId: deps.requestId,
-        consumerId: user.id,
-      }),
+      ...consultRequestsQueryOptions({ ...deps, providerId: user.id }),
       staleTime: 'static',
     }),
   component: ConsultRequestsRoute,
@@ -40,16 +29,7 @@ function ConsultRequestsRoute() {
   const search = Route.useSearch();
   const { user } = Route.useRouteContext();
 
-  return (
-    <ConsultRequestsPage
-      page={search.page ?? DEFAULT_CONSULT_REQUEST_PAGE}
-      limit={search.limit ?? DEFAULT_CONSULT_REQUEST_LIMIT}
-      status={search.status ?? DEFAULT_CONSULT_REQUEST_STATUS}
-      time={search.time ?? DEFAULT_CONSULT_REQUEST_TIME}
-      requestId={search.requestId}
-      consumerId={user.id}
-    />
-  );
+  return <ConsultRequestsPage {...search} providerId={user.id} />;
 }
 
 function ConsultRequestsPending() {
