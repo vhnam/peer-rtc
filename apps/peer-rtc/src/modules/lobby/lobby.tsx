@@ -35,7 +35,7 @@ const LobbyPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex flex-1 items-center justify-center px-4 py-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Peer RTC</CardTitle>
