@@ -26,6 +26,7 @@ import {
 } from '@peer-rtc/ui/components/sidebar';
 
 import { authClient } from '#/lib/auth-client';
+import { getAvatarInitials } from '#/utils/avatar';
 
 type NavUrl = '/' | '/consult-requests';
 
@@ -34,18 +35,7 @@ const NAV_ITEMS: Array<{ title: string; url: NavUrl; icon: LucideIcon }> = [
   { title: 'Consult requests', url: '/consult-requests', icon: ClipboardList },
 ];
 
-const getInitials = (name: string) => {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
-
-  return initials || 'WW';
-};
-
-export function AppSidebar() {
+export function ProtectedLayoutSidebar() {
   const { isMobile } = useSidebar();
   const matchRoute = useMatchRoute();
   const router = useRouter();
@@ -109,12 +99,12 @@ export function AppSidebar() {
                 className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
                 render={<DropdownMenuTrigger />}
               >
-                <Avatar size="sm">
+                <Avatar>
                   {user?.image ? <AvatarImage src={user.image} alt={displayName} /> : null}
-                  <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+                  <AvatarFallback>{getAvatarInitials(displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{displayName}</span>
+                  <span className="truncate text-xs font-medium">{displayName}</span>
                   <span className="truncate text-xs text-muted-foreground">{displayEmail}</span>
                 </div>
               </SidebarMenuButton>

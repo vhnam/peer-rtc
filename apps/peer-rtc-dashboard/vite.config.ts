@@ -17,19 +17,65 @@ const https =
     ? { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) }
     : undefined;
 
+const mediapipeWasmSrc = path.resolve(root, 'node_modules/@mediapipe/tasks-vision/wasm');
+const mediapipePublicDir = path.resolve(root, 'public/mediapipe');
+const mediapipeWasmDest = path.resolve(mediapipePublicDir, 'wasm');
+const selfieSegmenterDest = path.resolve(mediapipePublicDir, 'selfie_segmenter_landscape.tflite');
+const selfieSegmenterUrl =
+  'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite';
+
+const ensureSelfieSegmenterModel = async () => {
+  if (fs.existsSync(selfieSegmenterDest) && fs.statSync(selfieSegmenterDest).size > 0) {
+    return;
+  }
+
+  fs.mkdirSync(mediapipePublicDir, { recursive: true });
+  const response = await fetch(selfieSegmenterUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to download selfie segmenter model (${response.status})`);
+  }
+
+  fs.writeFileSync(selfieSegmenterDest, Buffer.from(await response.arrayBuffer()));
+};
+
+const copyMediaPipeAssets = () => ({
+  name: 'copy-mediapipe-assets',
+  async buildStart() {
+    fs.cpSync(mediapipeWasmSrc, mediapipeWasmDest, { recursive: true });
+    await ensureSelfieSegmenterModel();
+  },
+});
+
+const fixMediaPipeSourcemap = () => ({
+  name: 'fix-mediapipe-sourcemap',
+  enforce: 'pre' as const,
+  load(id: string) {
+    if (!id.endsWith(`${path.sep}vision_bundle.mjs`) || !id.includes(`${path.sep}@mediapipe${path.sep}tasks-vision${path.sep}`)) {
+      return;
+    }
+
+    return fs
+      .readFileSync(id, 'utf8')
+      .replace('sourceMappingURL=vision_bundle_mjs.js.map', 'sourceMappingURL=vision_bundle.mjs.map');
+  },
+});
+
 const config = defineConfig({
   server: { https },
+  optimizeDeps: {
+    // Prebundling these hits Rolldown "is a directory" on peerjs-js-binarypack.
+    exclude: ['peerjs', 'peerjs-js-binarypack', '@mediapipe/tasks-vision'],
+  },
   resolve: {
     tsconfigPaths: true,
-    alias: {
-      'peerjs-js-binarypack': path.resolve(root, 'node_modules/peerjs-js-binarypack'),
-    },
   },
   ssr: {
-    // WebRTC client — do not bundle into the Nitro/SSR graph.
-    external: ['peerjs', 'peerjs-js-binarypack'],
+    // WebRTC / WASM clients — do not bundle into the Nitro/SSR graph.
+    external: ['peerjs', 'peerjs-js-binarypack', '@mediapipe/tasks-vision'],
   },
   plugins: lazyPlugins(() => [
+    copyMediaPipeAssets(),
+    fixMediaPipeSourcemap(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

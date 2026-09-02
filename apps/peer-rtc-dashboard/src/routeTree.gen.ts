@@ -12,10 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
-import { Route as ProtectedConsultRequestsRouteImport } from './routes/_protected/consult-requests'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
+import { Route as ProtectedConsultRequestsIndexRouteImport } from './routes/_protected/consult-requests/index'
+import { Route as ProtectedConsultRequestsRoomIdRouteImport } from './routes/_protected/consult-requests/$roomId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -31,12 +32,6 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProtectedRoute,
 } as any)
-const ProtectedConsultRequestsRoute =
-  ProtectedConsultRequestsRouteImport.update({
-    id: '/consult-requests',
-    path: '/consult-requests',
-    getParentRoute: () => ProtectedRoute,
-  } as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -52,59 +47,77 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => AuthRoute,
 } as any)
+const ProtectedConsultRequestsIndexRoute =
+  ProtectedConsultRequestsIndexRouteImport.update({
+    id: '/consult-requests/',
+    path: '/consult-requests/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
+const ProtectedConsultRequestsRoomIdRoute =
+  ProtectedConsultRequestsRoomIdRouteImport.update({
+    id: '/consult-requests/$roomId',
+    path: '/consult-requests/$roomId',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/auth': typeof AuthRouteWithChildren
-  '/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/consult-requests/$roomId': typeof ProtectedConsultRequestsRoomIdRoute
+  '/consult-requests/': typeof ProtectedConsultRequestsIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
-  '/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/': typeof ProtectedIndexRoute
+  '/consult-requests/$roomId': typeof ProtectedConsultRequestsRoomIdRoute
+  '/consult-requests': typeof ProtectedConsultRequestsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/_protected/consult-requests': typeof ProtectedConsultRequestsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/_protected/': typeof ProtectedIndexRoute
+  '/_protected/consult-requests/$roomId': typeof ProtectedConsultRequestsRoomIdRoute
+  '/_protected/consult-requests/': typeof ProtectedConsultRequestsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
+    | '/consult-requests/$roomId'
+    | '/consult-requests/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
-    | '/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/'
+    | '/consult-requests/$roomId'
+    | '/consult-requests'
   id:
     | '__root__'
     | '/_protected'
     | '/auth'
-    | '/_protected/consult-requests'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/_protected/'
+    | '/_protected/consult-requests/$roomId'
+    | '/_protected/consult-requests/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,13 +148,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/consult-requests': {
-      id: '/_protected/consult-requests'
-      path: '/consult-requests'
-      fullPath: '/consult-requests'
-      preLoaderRoute: typeof ProtectedConsultRequestsRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
     '/auth/forgot-password': {
       id: '/auth/forgot-password'
       path: '/forgot-password'
@@ -163,17 +169,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_protected/consult-requests/': {
+      id: '/_protected/consult-requests/'
+      path: '/consult-requests'
+      fullPath: '/consult-requests/'
+      preLoaderRoute: typeof ProtectedConsultRequestsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/consult-requests/$roomId': {
+      id: '/_protected/consult-requests/$roomId'
+      path: '/consult-requests/$roomId'
+      fullPath: '/consult-requests/$roomId'
+      preLoaderRoute: typeof ProtectedConsultRequestsRoomIdRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
   }
 }
 
 interface ProtectedRouteChildren {
-  ProtectedConsultRequestsRoute: typeof ProtectedConsultRequestsRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
+  ProtectedConsultRequestsRoomIdRoute: typeof ProtectedConsultRequestsRoomIdRoute
+  ProtectedConsultRequestsIndexRoute: typeof ProtectedConsultRequestsIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedConsultRequestsRoute: ProtectedConsultRequestsRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
+  ProtectedConsultRequestsRoomIdRoute: ProtectedConsultRequestsRoomIdRoute,
+  ProtectedConsultRequestsIndexRoute: ProtectedConsultRequestsIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

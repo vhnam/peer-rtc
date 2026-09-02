@@ -19,11 +19,12 @@ const https =
 
 const config = defineConfig({
   server: { https },
+  optimizeDeps: {
+    // Prebundling these hits Rolldown "is a directory" on peerjs-js-binarypack.
+    exclude: ['peerjs', 'peerjs-js-binarypack'],
+  },
   resolve: {
     tsconfigPaths: true,
-    alias: {
-      'peerjs-js-binarypack': path.resolve(root, 'node_modules/peerjs-js-binarypack'),
-    },
   },
   ssr: {
     // WebRTC client — do not bundle into the Nitro/SSR graph.

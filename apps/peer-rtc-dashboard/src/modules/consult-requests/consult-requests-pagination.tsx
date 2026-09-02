@@ -1,10 +1,13 @@
-import { Link } from '@tanstack/react-router';
+import { getRouteApi } from '@tanstack/react-router';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 import { Button } from '@peer-rtc/ui/components/button';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from '@peer-rtc/ui/components/pagination';
 
 import type { ConsultRequestsSearch } from './consult-requests.types';
+
+const consultRequestsRoute = getRouteApi('/_protected/consult-requests/');
+const ConsultRequestsLink = consultRequestsRoute.Link;
 
 const visiblePageItems = (current: number, totalPages: number): Array<number | 'ellipsis'> => {
   if (totalPages <= 5) {
@@ -60,8 +63,8 @@ export const ConsultRequestsPagination = ({ page, limit, total }: { page: number
                 className="pl-1.5"
                 nativeButton={false}
                 render={
-                  <Link
-                    to="/consult-requests"
+                  <ConsultRequestsLink
+                    to="."
                     search={(previous: ConsultRequestsSearch) => ({ ...previous, page: previousPage })}
                   />
                 }
@@ -84,8 +87,8 @@ export const ConsultRequestsPagination = ({ page, limit, total }: { page: number
                   nativeButton={false}
                   aria-current={item === page ? 'page' : undefined}
                   render={
-                    <Link
-                      to="/consult-requests"
+                    <ConsultRequestsLink
+                      to="."
                       search={(previous: ConsultRequestsSearch) => ({ ...previous, page: item })}
                     />
                   }
@@ -108,8 +111,8 @@ export const ConsultRequestsPagination = ({ page, limit, total }: { page: number
                 className="pr-1.5"
                 nativeButton={false}
                 render={
-                  <Link
-                    to="/consult-requests"
+                  <ConsultRequestsLink
+                    to="."
                     search={(previous: ConsultRequestsSearch) => ({ ...previous, page: nextPage })}
                   />
                 }

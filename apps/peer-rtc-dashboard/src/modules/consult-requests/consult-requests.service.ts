@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 import { env } from '#/env';
 
-import type { ConsultRequestListParams, ConsultRequestListResult } from './consult-requests.types';
+import type { ConsultRequest, ConsultRequestListParams, ConsultRequestListResult } from './consult-requests.types';
 
 const UserSchema = v.object({
   id: v.string(),
@@ -82,4 +82,20 @@ export async function listConsultRequests(params: ConsultRequestListParams): Pro
     page: result.page || params.page,
     limit: result.limit || params.limit,
   };
+}
+
+const ConsultRequestResponseSchema = v.pipe(
+  v.union([ConsultRequestSchema, v.object({ data: ConsultRequestSchema })]),
+  v.transform((value): ConsultRequest => ('data' in value ? value.data : value)),
+);
+
+export async function getConsultRequest(requestId: string): Promise<ConsultRequest> {
+  const url = new URL(`/api/consult-requests/${requestId}`, env.VITE_PUBLIC_AUTH_URL);
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to load consult request (${response.status})`);
+  }
+  return v.parse(ConsultRequestResponseSchema, await response.json());
 }
