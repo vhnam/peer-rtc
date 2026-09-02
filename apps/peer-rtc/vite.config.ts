@@ -17,11 +17,27 @@ const https =
     ? { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) }
     : undefined;
 
+const sdpCjsDefaultExport = () => ({
+  name: 'sdp-cjs-default-export',
+  enforce: 'pre' as const,
+  // webrtc-adapter ESM imports `sdp`, whose "module" entry is CJS.
+  transform: {
+    filter: { id: /[\\/]sdp[\\/]sdp\.js(?:\?|$)/ },
+    handler(code: string) {
+      if (code.includes('export default')) {
+        return;
+      }
+      return `${code}\nexport default SDPUtils;\n`;
+    },
+  },
+});
+
 const config = defineConfig({
   server: { https },
   optimizeDeps: {
     // Prebundling these hits Rolldown "is a directory" on peerjs-js-binarypack.
     exclude: ['peerjs', 'peerjs-js-binarypack'],
+    include: ['sdp', 'webrtc-adapter'],
   },
   resolve: {
     tsconfigPaths: true,
@@ -31,6 +47,7 @@ const config = defineConfig({
     external: ['peerjs', 'peerjs-js-binarypack'],
   },
   plugins: lazyPlugins(() => [
+    sdpCjsDefaultExport(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

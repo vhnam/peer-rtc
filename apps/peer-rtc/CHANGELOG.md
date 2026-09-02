@@ -1,5 +1,16 @@
 # @peer-rtc/app
 
+## 0.2.0
+
+### Minor Changes
+
+- ec56272: Add live consult-request join signaling, operator call-start waiting, dashboard appearance settings, and shared theme support.
+
+### Patch Changes
+
+- Updated dependencies [ec56272]
+  - @peer-rtc/ui@0.0.2
+
 ## 0.1.1
 
 ### Patch Changes

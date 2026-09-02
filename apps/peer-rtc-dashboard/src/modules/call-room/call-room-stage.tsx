@@ -1,13 +1,16 @@
-import { useDragDropMonitor, useDraggable, useDroppable, type DragEndEvent } from '@dnd-kit/react';
+import { useDragDropMonitor, useDroppable, type DragEndEvent } from '@dnd-kit/react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { Avatar, AvatarFallback } from '@peer-rtc/ui/components/avatar';
-import { cn } from '@peer-rtc/ui/lib/utils';
+import {
+  CALL_ROOM_STAGE_DROPPABLE_ID,
+  LOCAL_MEDIA_HEIGHT,
+  LOCAL_MEDIA_INSET,
+  LOCAL_MEDIA_WIDTH,
+} from '#/constants/call-room.constants';
 
-type BindVideoProps = {
-  video: HTMLVideoElement | null;
-  stream: MediaStream | null;
-};
+import { CallRoomLocalMedia } from './call-room-local-media';
+import { CallRoomWaiting } from './call-room-waiting';
+import type { BindVideoProps, CallRoomStageProps, Position } from './call-room.types';
 
 const bindVideo = ({ video, stream }: BindVideoProps) => {
   if (!video) {
@@ -20,17 +23,9 @@ const bindVideo = ({ video, stream }: BindVideoProps) => {
   }
 };
 
-const LOCAL_MEDIA_WIDTH = 240;
-const LOCAL_MEDIA_HEIGHT = (LOCAL_MEDIA_WIDTH * 9) / 16;
-
-type Position = {
-  x: number;
-  y: number;
-};
-
-const getDefaultPosition = (container: HTMLElement): Position => ({
-  x: Math.max(0, container.clientWidth - LOCAL_MEDIA_WIDTH),
-  y: Math.max(0, container.clientHeight - LOCAL_MEDIA_HEIGHT - 16),
+const getCornerPosition = (container: HTMLElement): Position => ({
+  x: Math.max(0, container.clientWidth - LOCAL_MEDIA_WIDTH - LOCAL_MEDIA_INSET),
+  y: Math.max(0, container.clientHeight - LOCAL_MEDIA_HEIGHT - LOCAL_MEDIA_INSET),
 });
 
 const clampPosition = (position: Position, container: HTMLElement): Position => ({
@@ -39,17 +34,24 @@ const clampPosition = (position: Position, container: HTMLElement): Position => 
 });
 
 export const CallRoomStage = ({
+  isStartedCall,
   localStream,
+  remoteStream,
   isCameraEnabled,
+  isWaitingForConsumer,
   placeholder,
-}: {
-  localStream: MediaStream | null;
-  isCameraEnabled: boolean;
-  placeholder: string;
-}) => {
+  consumerName,
+}: CallRoomStageProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const { ref: droppableRef } = useDroppable({ id: 'draggable-container' });
+  const { ref: droppableRef } = useDroppable({ id: CALL_ROOM_STAGE_DROPPABLE_ID });
+
+  const isWaitingForConsumerAfterStart = isWaitingForConsumer && isStartedCall;
+
+  useEffect(() => {
+    bindVideo({ video: remoteVideoRef.current, stream: remoteStream });
+  }, [remoteStream]);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -57,12 +59,28 @@ export const CallRoomStage = ({
       return;
     }
 
-    setPosition(getDefaultPosition(container));
-  }, []);
+    const syncCornerPosition = () => {
+      if (container.clientWidth === 0 || container.clientHeight === 0) {
+        return;
+      }
+
+      // Pin to bottom-right of the stage while previewing / waiting. Do not
+      // overwrite a user drag once the consumer has joined.
+      if (!isStartedCall || isWaitingForConsumer) {
+        setPosition(getCornerPosition(container));
+      }
+    };
+
+    syncCornerPosition();
+
+    const observer = new ResizeObserver(syncCornerPosition);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [isWaitingForConsumer, isStartedCall]);
 
   useDragDropMonitor({
     onDragEnd: (event: DragEndEvent) => {
-      if (event.canceled) {
+      if (isWaitingForConsumer || event.canceled) {
         return;
       }
 
@@ -78,70 +96,37 @@ export const CallRoomStage = ({
 
   return (
     <div
-      id="draggable-container"
+      id={CALL_ROOM_STAGE_DROPPABLE_ID}
       ref={(node) => {
         containerRef.current = node;
         droppableRef(node);
       }}
       className="relative flex size-full items-center overflow-hidden pb-4"
     >
-      <div className="flex aspect-video w-full items-center justify-center bg-blue-500">Remote Media</div>
-      <LocalMediaPreview
+      <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden">
+        {isWaitingForConsumerAfterStart && <CallRoomWaiting consumerName={consumerName} />}
+
+        {!isWaitingForConsumer && (
+          <video
+            ref={(video) => {
+              remoteVideoRef.current = video;
+              bindVideo({ video, stream: remoteStream });
+            }}
+            className="size-full object-cover border-2 border-border bg-grey-500"
+            autoPlay
+            playsInline
+            disablePictureInPicture
+          />
+        )}
+      </div>
+
+      <CallRoomLocalMedia
+        isStartedCall={isStartedCall}
+        isWaitingForConsumer={isWaitingForConsumer}
         position={position}
         localStream={localStream}
         isCameraEnabled={isCameraEnabled}
         placeholder={placeholder}
-      />
-    </div>
-  );
-};
-
-interface LocalMediaPreviewProps {
-  position: Position;
-  localStream: MediaStream | null;
-  isCameraEnabled: boolean;
-  placeholder: string;
-}
-
-const LocalMediaPreview = ({ position, localStream, isCameraEnabled, placeholder }: LocalMediaPreviewProps) => {
-  const { ref, isDragging } = useDraggable({ id: 'local-media' });
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    bindVideo({ video: videoRef.current, stream: localStream });
-  }, [localStream]);
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'absolute z-10 cursor-grab touch-none overflow-hidden bg-muted select-none',
-        isDragging && 'z-20 cursor-grabbing opacity-80',
-      )}
-      style={{
-        width: LOCAL_MEDIA_WIDTH,
-        height: LOCAL_MEDIA_HEIGHT,
-        left: position.x,
-        top: position.y,
-      }}
-    >
-      {!isCameraEnabled && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <Avatar size="lg">
-            <AvatarFallback>{placeholder}</AvatarFallback>
-          </Avatar>
-        </div>
-      )}
-      <video
-        ref={(video) => {
-          videoRef.current = video;
-          bindVideo({ video, stream: localStream });
-        }}
-        className={cn('size-full object-cover', !isCameraEnabled && 'invisible')}
-        autoPlay
-        playsInline
-        muted
-        disablePictureInPicture
       />
     </div>
   );

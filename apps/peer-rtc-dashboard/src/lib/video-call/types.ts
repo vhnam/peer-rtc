@@ -14,6 +14,7 @@ export interface VideoCallState {
   role: CallRole | null;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
+  isRemoteConnected: boolean;
   isCameraEnabled: boolean;
   isMicrophoneEnabled: boolean;
   isVirtualBackgroundEnabled: boolean;

@@ -1,4 +1,4 @@
-export const CONSULT_REQUEST_STATUSES = ['pending', 'accepted', 'closed', 'cancelled'] as const;
+export const CONSULT_REQUEST_STATUSES = ['pending', 'accepted', 'closed', 'canceled'] as const;
 
 export type ConsultRequestStatus = (typeof CONSULT_REQUEST_STATUSES)[number] | (string & {});
 
@@ -36,7 +36,7 @@ export type ConsultRequest = {
 };
 
 export const DEFAULT_CONSULT_REQUEST_PAGE = 1;
-export const DEFAULT_CONSULT_REQUEST_LIMIT = 20;
+export const DEFAULT_CONSULT_REQUEST_LIMIT = 10;
 export const MAX_CONSULT_REQUEST_LIMIT = 100;
 export const DEFAULT_CONSULT_REQUEST_STATUS = 'pending' satisfies ConsultRequestStatus;
 export const DEFAULT_CONSULT_REQUEST_TIME = 'today' satisfies ConsultRequestTimeRange;
@@ -45,12 +45,18 @@ export type ConsultRequestListParams = {
   page: number;
   limit: number;
   providerId: string;
-  status: ConsultRequestStatus;
+  status?: ConsultRequestStatus;
   time: ConsultRequestTimeRange;
   requestId?: string;
 };
 
 export type ConsultRequestsSearch = Omit<ConsultRequestListParams, 'providerId'>;
+
+export type UpdateConsultRequestPayload = {
+  id: string;
+  providerId: string;
+  status: ConsultRequestStatus;
+};
 
 export type ConsultRequestListResult = {
   data: ConsultRequest[];

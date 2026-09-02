@@ -1,28 +1,28 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import { useEffect, useState } from 'react';
 
+import { DEFAULT_STAFF_DISPLAY_NAME } from '#/constants/call-room.constants';
 import { authClient } from '#/lib/auth-client';
+import { socket } from '#/lib/socket-client';
 import { useVideoCall } from '#/lib/video-call';
-import type { ConsultRequest } from '#/modules/consult-requests/consult-requests.types';
 import { getAvatarInitials } from '#/utils/avatar';
 
 import { CallRoomConsumerInfo } from './call-room-consumer-info';
 import { CallRoomFooter } from './call-room-footer';
 import { CallRoomStage } from './call-room-stage';
-
-interface CallRoomProps {
-  consultRequest: ConsultRequest;
-}
+import type { CallRoomProps } from './call-room.types';
 
 export const CallRoom = ({ consultRequest }: CallRoomProps) => {
   const [isStartedCall, setIsStartedCall] = useState(false);
 
   const { data: session } = authClient.useSession();
   const user = session?.user;
-  const displayName = user?.name || 'Staff';
+  const displayName = user?.name || DEFAULT_STAFF_DISPLAY_NAME;
 
   const {
+    isRemoteConnected,
     localStream,
+    remoteStream,
     isCameraEnabled,
     isMicrophoneEnabled,
     isVirtualBackgroundEnabled,
@@ -35,6 +35,9 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
     toggleVirtualBackground,
   } = useVideoCall();
 
+  const isWaitingForConsumer = !isRemoteConnected;
+  const canStartCall = consultRequest.status === 'pending' || consultRequest.status === 'accepted';
+
   useEffect(() => {
     void startCamera().catch((error: unknown) => {
       console.error(error);
@@ -45,10 +48,24 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
   }, [startCamera, startMicrophone]);
 
   const handleStartCall = () => {
+    if (!canStartCall) {
+      return;
+    }
+
     setIsStartedCall(true);
-    void join(consultRequest.requestId).catch((error: unknown) => {
-      console.error(error);
-    });
+
+    void join(consultRequest.id)
+      .then(
+        () =>
+          void socket.emitWithAck('provider_joined', {
+            consultRequestId: consultRequest.id,
+            consumerId: consultRequest.consumer.id,
+          }),
+      )
+      .catch((error: unknown) => {
+        setIsStartedCall(false);
+        console.error(error);
+      });
   };
 
   const handleEndCall = () => {
@@ -62,8 +79,12 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
         <DragDropProvider>
           <CallRoomStage
             localStream={localStream}
+            remoteStream={remoteStream}
             isCameraEnabled={isCameraEnabled}
+            isWaitingForConsumer={isWaitingForConsumer}
+            isStartedCall={isStartedCall}
             placeholder={getAvatarInitials(displayName)}
+            consumerName={consultRequest.consumer.name}
           />
         </DragDropProvider>
         <CallRoomConsumerInfo consultRequest={consultRequest} />
@@ -71,6 +92,7 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
 
       <CallRoomFooter
         isStartedCall={isStartedCall}
+        canStartCall={canStartCall}
         isCameraEnabled={isCameraEnabled}
         isMicrophoneEnabled={isMicrophoneEnabled}
         isVirtualBackgroundEnabled={isVirtualBackgroundEnabled}

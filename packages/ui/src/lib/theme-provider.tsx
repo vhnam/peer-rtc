@@ -78,14 +78,6 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
 
-  const setTheme = useCallback(
-    (nextTheme: Theme) => {
-      localStorage.setItem(storageKey, nextTheme);
-      setThemeState(nextTheme);
-    },
-    [storageKey],
-  );
-
   const applyTheme = useCallback(
     (nextTheme: Theme) => {
       const root = document.documentElement;
@@ -100,6 +92,15 @@ export function ThemeProvider({
       }
     },
     [disableTransitionOnChange],
+  );
+
+  const setTheme = useCallback(
+    (nextTheme: Theme) => {
+      localStorage.setItem(storageKey, nextTheme);
+      applyTheme(nextTheme);
+      setThemeState(nextTheme);
+    },
+    [applyTheme, storageKey],
   );
 
   useEffect(() => {

@@ -56,7 +56,9 @@ export interface PeerSession {
  * random id and opens a data connection to the room's host (guest).
  */
 export const joinPeerSession = async (roomId: string): Promise<PeerSession> => {
-  const { Peer, PeerErrorType } = await import('peerjs');
+  const peerjs = await import('peerjs');
+  const Peer = peerjs.Peer ?? peerjs.default;
+  const { PeerErrorType } = peerjs;
 
   const hostPeer = new Peer(roomId);
 

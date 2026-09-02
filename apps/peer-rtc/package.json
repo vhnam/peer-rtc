@@ -1,6 +1,6 @@
 {
   "name": "@peer-rtc/app",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "imports": {
@@ -30,6 +30,7 @@
     "peerjs-js-binarypack": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "socket.io-client": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {

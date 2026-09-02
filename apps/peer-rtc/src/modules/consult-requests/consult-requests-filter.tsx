@@ -21,7 +21,7 @@ const CONSULT_REQUEST_STATUS_OPTIONS: { label: string; value: ConsultRequestStat
   { label: 'Pending', value: 'pending' },
   { label: 'Accepted', value: 'accepted' },
   { label: 'Closed', value: 'closed' },
-  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Canceled', value: 'canceled' },
 ];
 
 const DATE_RANGE_OPTIONS: { label: string; value: ConsultRequestTimeRange }[] = [
@@ -94,7 +94,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
   return (
     <div className="flex gap-2 justify-between items-end mb-2">
       <div className="flex gap-2">
-        <Field className="max-w-64">
+        <Field className="w-72 min-w-0">
           <FieldLabel>Request ID</FieldLabel>
           <Input
             value={requestIdInput}
@@ -111,7 +111,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
           />
         </Field>
 
-        <Field className="max-w-36">
+        <Field className="w-36 min-w-0">
           <FieldLabel>Status</FieldLabel>
           <Select
             items={CONSULT_REQUEST_STATUS_OPTIONS}
@@ -135,7 +135,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
           </Select>
         </Field>
 
-        <Field className="max-w-48">
+        <Field className="w-36 min-w-0">
           <FieldLabel>Time</FieldLabel>
           <Select
             items={DATE_RANGE_OPTIONS}

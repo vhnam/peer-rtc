@@ -9,6 +9,7 @@ const createInitialState = (): VideoCallState => ({
   role: null,
   localStream: null,
   remoteStream: null,
+  isRemoteConnected: false,
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
   isVirtualBackgroundEnabled: false,
@@ -23,16 +24,15 @@ const createInitialState = (): VideoCallState => ({
 export class VideoCall {
   private readonly localMedia: LocalMedia;
   private readonly listeners = new Set<() => void>();
-  private readonly options: VideoCallOptions;
 
   private state: VideoCallState = createInitialState();
   private peer: Peer | null = null;
   private activeCall: MediaConnection | null = null;
+  private readonly watchedPeerConnections = new WeakSet<RTCPeerConnection>();
   private joinGeneration = 0;
   private disposed = false;
 
-  constructor(options: VideoCallOptions = {}) {
-    this.options = options;
+  constructor(_options: VideoCallOptions = {}) {
     this.localMedia = new LocalMedia({
       onChange: this.handleLocalMediaChange,
       onTrackReplaced: this.handleTrackReplaced,
@@ -50,45 +50,13 @@ export class VideoCall {
 
   join = async (roomId: string): Promise<void> => {
     if (this.disposed) {
-      return;
+      throw new Error('Video call is disposed');
     }
 
     const generation = ++this.joinGeneration;
     this.destroyActiveCall();
     this.destroyPeer();
     this.setState({ status: 'joining', error: null });
-
-    let cameraOk = false;
-    let micOk = false;
-
-    if (this.options.video !== false) {
-      try {
-        cameraOk = await this.localMedia.startCamera();
-      } catch (error: unknown) {
-        this.setState({ error: error as Error });
-      }
-    }
-
-    if (this.disposed || generation !== this.joinGeneration) {
-      return;
-    }
-
-    if (this.options.audio !== false) {
-      try {
-        micOk = await this.localMedia.startMicrophone();
-      } catch (error: unknown) {
-        this.setState({ error: error as Error });
-      }
-    }
-
-    if (this.disposed || generation !== this.joinGeneration) {
-      return;
-    }
-
-    if (!cameraOk && !micOk) {
-      this.setState({ status: 'error' });
-      return;
-    }
 
     try {
       const { peer, role } = await joinPeerSession(roomId);
@@ -110,6 +78,7 @@ export class VideoCall {
         return;
       }
       this.setState({ status: 'error', error: error as Error });
+      throw error;
     }
   };
 
@@ -117,8 +86,18 @@ export class VideoCall {
     this.joinGeneration += 1;
     this.destroyActiveCall();
     this.destroyPeer();
-    this.localMedia.stopAll();
-    this.setState({ ...createInitialState(), status: 'left' });
+    // Keep local devices as-is for the lobby preview (e.g. camera stays on if it was on).
+    this.setState({
+      status: 'left',
+      role: null,
+      remoteStream: null,
+      isRemoteConnected: false,
+      error: null,
+      localStream: this.localMedia.getStream(),
+      isCameraEnabled: this.localMedia.isCameraEnabled(),
+      isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
+      isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
+    });
   };
 
   dispose = (): void => {
@@ -191,11 +170,54 @@ export class VideoCall {
       if (this.activeCall !== call) {
         return;
       }
-      this.setState({ remoteStream, status: 'connected' });
+
+      this.watchPeerConnection(call);
+      this.watchRemoteStreamEnded(call, remoteStream);
+      this.setState({ remoteStream, isRemoteConnected: true, status: 'connected' });
     });
 
     call.on('close', () => this.handleCallEnded(call));
     call.on('error', () => this.handleCallEnded(call));
+    this.watchPeerConnection(call);
+  }
+
+  private watchPeerConnection(call: MediaConnection) {
+    const peerConnection = call.peerConnection;
+    if (!peerConnection || this.watchedPeerConnections.has(peerConnection)) {
+      return;
+    }
+
+    this.watchedPeerConnections.add(peerConnection);
+
+    peerConnection.addEventListener('connectionstatechange', () => {
+      if (this.activeCall !== call) {
+        return;
+      }
+
+      if (
+        peerConnection.connectionState === 'disconnected' ||
+        peerConnection.connectionState === 'failed' ||
+        peerConnection.connectionState === 'closed'
+      ) {
+        this.handleCallEnded(call);
+      }
+    });
+  }
+
+  private watchRemoteStreamEnded(call: MediaConnection, remoteStream: MediaStream) {
+    const onTrackEnded = () => {
+      if (this.activeCall !== call) {
+        return;
+      }
+
+      if (remoteStream.getTracks().every((track) => track.readyState === 'ended')) {
+        this.handleCallEnded(call);
+      }
+    };
+
+    remoteStream.getTracks().forEach((track) => {
+      track.addEventListener('ended', onTrackEnded);
+    });
   }
 
   private handleCallEnded(call: MediaConnection) {
@@ -204,7 +226,11 @@ export class VideoCall {
     }
 
     this.activeCall = null;
-    this.setState({ remoteStream: null, status: this.peer ? 'waiting' : this.state.status });
+    this.setState({
+      remoteStream: null,
+      isRemoteConnected: false,
+      status: this.peer ? 'waiting' : this.state.status,
+    });
   }
 
   private destroyActiveCall() {

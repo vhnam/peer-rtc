@@ -6,8 +6,7 @@ import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig } from 'vite-plus';
-import { lazyPlugins } from 'vite-plus';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const certPath = path.resolve(root, '.cert/cert.pem');
@@ -46,17 +45,46 @@ const copyMediaPipeAssets = () => ({
   },
 });
 
+const isMediaPipeVisionBundle = (id: string) => {
+  const filePath = id.replace('\0', '').split('?')[0] ?? id;
+  return (
+    filePath.endsWith(`${path.sep}vision_bundle.mjs`) &&
+    filePath.includes(`${path.sep}@mediapipe${path.sep}tasks-vision${path.sep}`)
+  );
+};
+
 const fixMediaPipeSourcemap = () => ({
   name: 'fix-mediapipe-sourcemap',
   enforce: 'pre' as const,
-  load(id: string) {
-    if (!id.endsWith(`${path.sep}vision_bundle.mjs`) || !id.includes(`${path.sep}@mediapipe${path.sep}tasks-vision${path.sep}`)) {
-      return;
-    }
+  // Vite+ / Rolldown skips unfiltered load hooks; without this the default fs
+  // loader still reads MediaPipe's broken sourceMappingURL and throws ENOENT.
+  load: {
+    filter: { id: /[\\/]@mediapipe[\\/]tasks-vision[\\/]vision_bundle\.mjs(?:\?|$)/ },
+    handler(id: string) {
+      if (!isMediaPipeVisionBundle(id)) {
+        return;
+      }
 
-    return fs
-      .readFileSync(id, 'utf8')
-      .replace('sourceMappingURL=vision_bundle_mjs.js.map', 'sourceMappingURL=vision_bundle.mjs.map');
+      const filePath = id.replace('\0', '').split('?')[0] ?? id;
+      return fs
+        .readFileSync(filePath, 'utf8')
+        .replace('sourceMappingURL=vision_bundle_mjs.js.map', 'sourceMappingURL=vision_bundle.mjs.map');
+    },
+  },
+});
+
+const sdpCjsDefaultExport = () => ({
+  name: 'sdp-cjs-default-export',
+  enforce: 'pre' as const,
+  // webrtc-adapter ESM imports `sdp`, whose "module" entry is CJS.
+  transform: {
+    filter: { id: /[\\/]sdp[\\/]sdp\.js(?:\?|$)/ },
+    handler(code: string) {
+      if (code.includes('export default')) {
+        return;
+      }
+      return `${code}\nexport default SDPUtils;\n`;
+    },
   },
 });
 
@@ -65,6 +93,7 @@ const config = defineConfig({
   optimizeDeps: {
     // Prebundling these hits Rolldown "is a directory" on peerjs-js-binarypack.
     exclude: ['peerjs', 'peerjs-js-binarypack', '@mediapipe/tasks-vision'],
+    include: ['sdp', 'webrtc-adapter'],
   },
   resolve: {
     tsconfigPaths: true,
@@ -76,6 +105,7 @@ const config = defineConfig({
   plugins: lazyPlugins(() => [
     copyMediaPipeAssets(),
     fixMediaPipeSourcemap(),
+    sdpCjsDefaultExport(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

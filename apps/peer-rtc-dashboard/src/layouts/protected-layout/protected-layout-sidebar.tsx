@@ -1,5 +1,5 @@
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
-import { BookOpen, ClipboardList, type LucideIcon } from 'lucide-react';
+import { BookOpen, ChevronsUpDownIcon, ClipboardList, LogOutIcon, SettingsIcon, type LucideIcon } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@peer-rtc/ui/components/avatar';
 import {
@@ -107,12 +107,21 @@ export function ProtectedLayoutSidebar() {
                   <span className="truncate text-xs font-medium">{displayName}</span>
                   <span className="truncate text-xs text-muted-foreground">{displayEmail}</span>
                 </div>
+                <ChevronsUpDownIcon className="size-4 text-muted-foreground" />
               </SidebarMenuButton>
               <DropdownMenuContent side={isMobile ? 'bottom' : 'right'} align="end" className="min-w-56">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  render={
+                    <Link to="/settings">
+                      <SettingsIcon className="size-4" />
+                      <span>Settings</span>
+                    </Link>
+                  }
+                />
                 <DropdownMenuItem
                   onClick={() => {
                     void authClient.signOut({
@@ -124,7 +133,8 @@ export function ProtectedLayoutSidebar() {
                     });
                   }}
                 >
-                  Sign out
+                  <LogOutIcon className="size-4" />
+                  <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

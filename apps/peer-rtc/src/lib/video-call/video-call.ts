@@ -49,45 +49,13 @@ export class VideoCall {
 
   join = async (roomId: string): Promise<void> => {
     if (this.disposed) {
-      return;
+      throw new Error('Video call is disposed');
     }
 
     const generation = ++this.joinGeneration;
     this.destroyActiveCall();
     this.destroyPeer();
     this.setState({ status: 'joining', error: null });
-
-    let cameraOk = false;
-    let micOk = false;
-
-    if (this.options.video !== false) {
-      try {
-        cameraOk = await this.localMedia.startCamera();
-      } catch (error: unknown) {
-        this.setState({ error: error as Error });
-      }
-    }
-
-    if (this.disposed || generation !== this.joinGeneration) {
-      return;
-    }
-
-    if (this.options.audio !== false) {
-      try {
-        micOk = await this.localMedia.startMicrophone();
-      } catch (error: unknown) {
-        this.setState({ error: error as Error });
-      }
-    }
-
-    if (this.disposed || generation !== this.joinGeneration) {
-      return;
-    }
-
-    if (!cameraOk && !micOk) {
-      this.setState({ status: 'error' });
-      return;
-    }
 
     try {
       const { peer, role } = await joinPeerSession(roomId);
@@ -99,6 +67,33 @@ export class VideoCall {
 
       this.peer = peer;
       this.attachPeerHandlers(peer);
+
+      if (this.options.video !== false) {
+        try {
+          await this.localMedia.startCamera();
+        } catch (error: unknown) {
+          this.setState({ error: error as Error });
+        }
+      }
+
+      if (this.disposed || generation !== this.joinGeneration) {
+        peer.destroy();
+        return;
+      }
+
+      if (this.options.audio !== false) {
+        try {
+          await this.localMedia.startMicrophone();
+        } catch (error: unknown) {
+          this.setState({ error: error as Error });
+        }
+      }
+
+      if (this.disposed || generation !== this.joinGeneration) {
+        peer.destroy();
+        return;
+      }
+
       this.setState({ role, status: 'waiting' });
 
       if (role === 'guest') {
@@ -109,6 +104,7 @@ export class VideoCall {
         return;
       }
       this.setState({ status: 'error', error: error as Error });
+      throw error;
     }
   };
 
