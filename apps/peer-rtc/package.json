@@ -30,6 +30,7 @@
     "peerjs-js-binarypack": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "socket.io-client": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {

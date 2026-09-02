@@ -3,7 +3,6 @@ import {
   CONSULT_REQUEST_TIME_RANGES,
   DEFAULT_CONSULT_REQUEST_LIMIT,
   DEFAULT_CONSULT_REQUEST_PAGE,
-  DEFAULT_CONSULT_REQUEST_STATUS,
   DEFAULT_CONSULT_REQUEST_TIME,
   MAX_CONSULT_REQUEST_LIMIT,
   type ConsultRequestsSearch,
@@ -25,12 +24,12 @@ const parsePositiveInt = (value: unknown, fallback: number, max?: number) => {
   return parsed;
 };
 
-const parseStatus = (value: unknown): ConsultRequestStatus => {
+const parseStatus = (value: unknown): ConsultRequestStatus | undefined => {
   if (typeof value === 'string' && (CONSULT_REQUEST_STATUSES as readonly string[]).includes(value)) {
     return value as ConsultRequestStatus;
   }
 
-  return DEFAULT_CONSULT_REQUEST_STATUS;
+  return undefined;
 };
 
 const parseTime = (value: unknown): ConsultRequestTimeRange => {

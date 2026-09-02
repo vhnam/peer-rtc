@@ -2,7 +2,12 @@ import * as v from 'valibot';
 
 import { env } from '#/env';
 
-import type { ConsultRequest, ConsultRequestListParams, ConsultRequestListResult } from './consult-requests.types';
+import type {
+  ConsultRequest,
+  ConsultRequestListParams,
+  ConsultRequestListResult,
+  UpdateConsultRequestPayload,
+} from './consult-requests.types';
 
 const UserSchema = v.object({
   id: v.string(),
@@ -59,8 +64,11 @@ export async function listConsultRequests(params: ConsultRequestListParams): Pro
   const url = new URL('/api/consult-requests', env.VITE_PUBLIC_AUTH_URL);
   url.searchParams.set('page', String(params.page));
   url.searchParams.set('limit', String(params.limit));
-  url.searchParams.set('status', params.status);
   url.searchParams.set('time', params.time);
+
+  if (params.status) {
+    url.searchParams.set('status', params.status);
+  }
 
   if (params.requestId) {
     url.searchParams.set('requestId', params.requestId);
@@ -96,6 +104,22 @@ export async function getConsultRequest(requestId: string): Promise<ConsultReque
   });
   if (!response.ok) {
     throw new Error(`Failed to load consult request (${response.status})`);
+  }
+  return v.parse(ConsultRequestResponseSchema, await response.json());
+}
+
+export async function updateConsultRequest(payload: UpdateConsultRequestPayload): Promise<ConsultRequest> {
+  const url = new URL(`/api/consult-requests/${payload.id}`, env.VITE_PUBLIC_AUTH_URL);
+  const response = await fetch(url, {
+    credentials: 'include',
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update consult request (${response.status})`);
   }
   return v.parse(ConsultRequestResponseSchema, await response.json());
 }

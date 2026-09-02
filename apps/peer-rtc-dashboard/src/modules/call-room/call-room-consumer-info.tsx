@@ -1,8 +1,4 @@
-import type { ConsultRequest } from '#/modules/consult-requests/consult-requests.types';
-
-interface CallRoomConsumerInfoProps {
-  consultRequest: ConsultRequest;
-}
+import type { CallRoomConsumerInfoProps } from './call-room.types';
 
 export const CallRoomConsumerInfo = ({ consultRequest }: CallRoomConsumerInfoProps) => {
   return (

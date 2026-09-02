@@ -105,8 +105,16 @@ const Room = ({ roomId }: RoomProps) => {
       <RoomFooter
         isMicrophoneEnabled={isMicrophoneEnabled}
         isCameraEnabled={isCameraEnabled}
-        toggleMicrophone={toggleMicrophone}
-        toggleCamera={toggleCamera}
+        toggleMicrophone={() => {
+          void toggleMicrophone().catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
+        toggleCamera={() => {
+          void toggleCamera().catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
         leaveRoom={handleLeaveRoom}
       />
 

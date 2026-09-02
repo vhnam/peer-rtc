@@ -11,10 +11,11 @@ export type ConsultRequestTimeRangeOption = {
 };
 
 export const CONSULT_REQUEST_STATUS_OPTIONS: ConsultRequestStatusOption[] = [
+  { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'Accepted', value: 'accepted' },
   { label: 'Closed', value: 'closed' },
-  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Canceled', value: 'canceled' },
 ];
 
 export const DATE_RANGE_OPTIONS: ConsultRequestTimeRangeOption[] = [

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 import type { VideoCallOptions, VideoCallState } from '../types';
 import { VideoCall } from '../video-call';
@@ -8,6 +8,7 @@ const INITIAL_STATE: VideoCallState = {
   role: null,
   localStream: null,
   remoteStream: null,
+  isRemoteConnected: false,
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
   isVirtualBackgroundEnabled: false,
@@ -16,21 +17,24 @@ const INITIAL_STATE: VideoCallState = {
 
 const subscribeNoop = () => () => {};
 const getInitialState = () => INITIAL_STATE;
-const noop = () => {};
-const noopAsync = async () => {};
 
 export const useVideoCall = (options?: VideoCallOptions) => {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
+  const callRef = useRef<VideoCall | null>(null);
   const [call, setCall] = useState<VideoCall | null>(null);
 
   useEffect(() => {
     const next = new VideoCall(optionsRef.current);
+    callRef.current = next;
     setCall(next);
 
     return () => {
       next.dispose();
+      if (callRef.current === next) {
+        callRef.current = null;
+      }
     };
   }, []);
 
@@ -40,14 +44,46 @@ export const useVideoCall = (options?: VideoCallOptions) => {
     getInitialState,
   );
 
+  const join = useCallback(async (roomId: string) => {
+    const current = callRef.current;
+    if (!current) {
+      throw new Error('Video call is not ready');
+    }
+    await current.join(roomId);
+  }, []);
+
+  const leave = useCallback(() => {
+    callRef.current?.leave();
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    await callRef.current?.startCamera();
+  }, []);
+
+  const startMicrophone = useCallback(async () => {
+    await callRef.current?.startMicrophone();
+  }, []);
+
+  const toggleCamera = useCallback(async () => {
+    await callRef.current?.toggleCamera();
+  }, []);
+
+  const toggleMicrophone = useCallback(async () => {
+    await callRef.current?.toggleMicrophone();
+  }, []);
+
+  const toggleVirtualBackground = useCallback(async () => {
+    await callRef.current?.toggleVirtualBackground();
+  }, []);
+
   return {
     ...state,
-    join: call?.join ?? noopAsync,
-    leave: call?.leave ?? noop,
-    startCamera: call?.startCamera ?? noopAsync,
-    startMicrophone: call?.startMicrophone ?? noopAsync,
-    toggleCamera: call?.toggleCamera ?? noopAsync,
-    toggleMicrophone: call?.toggleMicrophone ?? noopAsync,
-    toggleVirtualBackground: call?.toggleVirtualBackground ?? noopAsync,
+    join,
+    leave,
+    startCamera,
+    startMicrophone,
+    toggleCamera,
+    toggleMicrophone,
+    toggleVirtualBackground,
   };
 };

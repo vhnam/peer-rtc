@@ -15,20 +15,11 @@ import { Button } from '@peer-rtc/ui/components/button';
 import { ButtonGroup } from '@peer-rtc/ui/components/button-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@peer-rtc/ui/components/tooltip';
 
-interface CallRoomFooterProps {
-  isStartedCall: boolean;
-  isCameraEnabled: boolean;
-  isMicrophoneEnabled: boolean;
-  isVirtualBackgroundEnabled: boolean;
-  onStartCall: () => void;
-  onEndCall: () => void;
-  onToggleCamera: () => void;
-  onToggleMicrophone: () => void;
-  onToggleVirtualBackground: () => void;
-}
+import type { CallRoomFooterProps } from './call-room.types';
 
 export const CallRoomFooter = ({
   isStartedCall,
+  canStartCall,
   isCameraEnabled,
   isMicrophoneEnabled,
   isVirtualBackgroundEnabled,
@@ -102,7 +93,7 @@ export const CallRoomFooter = ({
             <TooltipTrigger
               render={
                 <Button
-                  variant={isVirtualBackgroundEnabled ? 'default' : 'outline'}
+                  variant={isVirtualBackgroundEnabled ? 'outline' : 'destructive'}
                   size="icon"
                   onClick={onToggleVirtualBackground}
                   disabled={!isCameraEnabled}
@@ -128,7 +119,7 @@ export const CallRoomFooter = ({
             <PhoneIcon className="rotate-135" /> End Call
           </Button>
         ) : (
-          <Button onClick={onStartCall}>
+          <Button onClick={onStartCall} disabled={!canStartCall}>
             <PhoneIcon /> Start Call
           </Button>
         )}

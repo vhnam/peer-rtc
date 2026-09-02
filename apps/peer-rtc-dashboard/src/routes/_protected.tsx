@@ -1,8 +1,9 @@
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
+import { Outlet, createFileRoute, redirect, useMatchRoute } from '@tanstack/react-router';
 
 import { getAuthClient } from '@peer-rtc/auth';
 
 import ProtectedLayout from '#/layouts/protected-layout';
+import { useSocketConnection } from '#/lib/socket-client';
 
 export const Route = createFileRoute('/_protected')({
   ssr: false,
@@ -17,6 +18,11 @@ export const Route = createFileRoute('/_protected')({
 });
 
 function ProtectedRoute() {
+  const matchRoute = useMatchRoute();
+  const shouldConnectSocket = Boolean(matchRoute({ to: '/consult-requests/$roomId' }));
+
+  useSocketConnection(shouldConnectSocket);
+
   return (
     <ProtectedLayout>
       <Outlet />

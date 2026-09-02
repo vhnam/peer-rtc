@@ -74,7 +74,7 @@ const statusBadgeVariant = (status: ConsultRequestStatus) => {
       return 'default' as const;
     case 'closed':
       return 'secondary' as const;
-    case 'cancelled':
+    case 'canceled':
       return 'destructive' as const;
     default:
       return 'outline' as const;
@@ -101,6 +101,14 @@ const columns = columnHelper.columns([
     size: 120,
     cell: (info) => <ConsultRequestStatusBadge status={info.getValue()} />,
   }),
+  columnHelper.accessor('provider', {
+    header: 'Provider',
+    size: 180,
+    cell: (info) => info.getValue()?.name ?? '—',
+    meta: {
+      className: 'truncate',
+    },
+  }),
   columnHelper.accessor('note', {
     header: 'Note',
     size: 220,
@@ -126,22 +134,30 @@ const columns = columnHelper.columns([
   }),
   columnHelper.display({
     id: 'actions',
-    header: 'Actions',
+    header: '',
     size: 80,
-    cell: () => (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button variant="destructive" size="icon-sm">
-              <XIcon className="size-3" />
-            </Button>
-          }
-        />
-        <TooltipContent>
-          <p>Cancel request</p>
-        </TooltipContent>
-      </Tooltip>
-    ),
+    cell: (info) => {
+      const consultRequest = info.row.original;
+
+      if (consultRequest.status !== 'pending') {
+        return null;
+      }
+
+      return (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button variant="destructive" size="icon-sm">
+                <XIcon className="size-3" />
+              </Button>
+            }
+          />
+          <TooltipContent>
+            <p>Cancel request</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
   }),
 ]);
 
@@ -167,9 +183,9 @@ export const ConsultRequestsTable = ({ requests }: { requests: ConsultRequest[] 
       <CardContent className="min-w-0">
         <div className="relative w-full min-w-0 overflow-x-auto">
           <table
-            className="caption-bottom text-xs"
+            className="caption-bottom w-full text-xs"
             style={{
-              width: tableWidth,
+              width: '100%',
               minWidth: tableWidth,
               borderCollapse: 'collapse',
               borderSpacing: 0,

@@ -24,7 +24,7 @@ const consultRequestsRoute = getRouteApi('/_protected/consult-requests/');
 const REQUEST_ID_DEBOUNCE_MS = 400;
 
 type ConsultRequestsFilterProps = {
-  status: ConsultRequestStatus;
+  status?: ConsultRequestStatus;
   time: ConsultRequestTimeRange;
   requestId?: string;
 };
@@ -51,6 +51,10 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
 
           if (!nextSearch.requestId) {
             delete nextSearch.requestId;
+          }
+
+          if (!nextSearch.status) {
+            delete nextSearch.status;
           }
 
           return nextSearch;
@@ -82,7 +86,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
   return (
     <div className="flex gap-2 justify-between items-end mb-2">
       <div className="flex gap-2">
-        <Field className="max-w-64">
+        <Field className="w-72 min-w-0">
           <FieldLabel>Request ID</FieldLabel>
           <Input
             value={requestIdInput}
@@ -99,18 +103,23 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
           />
         </Field>
 
-        <Field className="max-w-36">
+        <Field className="w-36 min-w-0">
           <FieldLabel>Status</FieldLabel>
           <Select
             items={CONSULT_REQUEST_STATUS_OPTIONS}
-            value={status}
+            value={status ?? 'all'}
             onValueChange={(value) => {
+              if (value === 'all') {
+                updateSearch({ status: undefined });
+                return;
+              }
+
               if (typeof value === 'string' && (CONSULT_REQUEST_STATUSES as readonly string[]).includes(value)) {
                 updateSearch({ status: value });
               }
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
@@ -123,7 +132,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
           </Select>
         </Field>
 
-        <Field className="max-w-48">
+        <Field className="w-36 min-w-0">
           <FieldLabel>Time</FieldLabel>
           <Select
             items={DATE_RANGE_OPTIONS}
@@ -134,7 +143,7 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
               }
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select time" />
             </SelectTrigger>
             <SelectContent>

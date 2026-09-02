@@ -75,7 +75,7 @@ const statusBadgeVariant = (status: ConsultRequestStatus) => {
       return 'default' as const;
     case 'closed':
       return 'secondary' as const;
-    case 'cancelled':
+    case 'canceled':
       return 'destructive' as const;
     default:
       return 'outline' as const;
@@ -134,26 +134,35 @@ const columns = columnHelper.columns([
   }),
   columnHelper.display({
     id: 'actions',
-    header: 'Actions',
+    header: '',
     size: 80,
-    cell: (info) => (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Link
-              to="/consult-requests/$roomId"
-              params={{ roomId: info.row.original.id }}
-              className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
-            >
-              <PhoneIcon className="size-3" />
-            </Link>
-          }
-        />
-        <TooltipContent>
-          <p>Join call</p>
-        </TooltipContent>
-      </Tooltip>
-    ),
+    meta: {
+      className: 'text-right',
+    },
+    cell: (info) => {
+      if (['closed', 'canceled'].includes(info.row.original.status)) {
+        return null;
+      }
+
+      return (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                to="/consult-requests/$roomId"
+                params={{ roomId: info.row.original.id }}
+                className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+              >
+                <PhoneIcon className="size-3" />
+              </Link>
+            }
+          />
+          <TooltipContent>
+            <p>Take call</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
   }),
 ]);
 
@@ -180,9 +189,9 @@ export const ConsultRequestsTable = ({ requests }: { requests: ConsultRequest[] 
       <CardContent className="min-w-0">
         <div className="relative w-full min-w-0 overflow-x-auto">
           <table
-            className="caption-bottom text-xs"
+            className="caption-bottom w-full text-xs"
             style={{
-              width: tableWidth,
+              width: '100%',
               minWidth: tableWidth,
               borderCollapse: 'collapse',
               borderSpacing: 0,
