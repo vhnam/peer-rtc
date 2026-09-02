@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import {
   columnOrderingFeature,
   columnPinningFeature,
@@ -13,7 +14,7 @@ import { PhoneIcon } from 'lucide-react';
 import type { CSSProperties } from 'react';
 
 import { Badge } from '@peer-rtc/ui/components/badge';
-import { Button } from '@peer-rtc/ui/components/button';
+import { buttonVariants } from '@peer-rtc/ui/components/button';
 import { Card, CardContent } from '@peer-rtc/ui/components/card';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@peer-rtc/ui/components/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@peer-rtc/ui/components/tooltip';
@@ -135,13 +136,17 @@ const columns = columnHelper.columns([
     id: 'actions',
     header: 'Actions',
     size: 80,
-    cell: () => (
+    cell: (info) => (
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button variant="ghost" size="icon-sm">
+            <Link
+              to="/consult-requests/$roomId"
+              params={{ roomId: info.row.original.id }}
+              className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+            >
               <PhoneIcon className="size-3" />
-            </Button>
+            </Link>
           }
         />
         <TooltipContent>

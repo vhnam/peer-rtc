@@ -1,10 +1,12 @@
-import { useNavigate } from '@tanstack/react-router';
+import { getRouteApi } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@peer-rtc/ui/components/button';
 import { Field, FieldLabel } from '@peer-rtc/ui/components/field';
 import { Input } from '@peer-rtc/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@peer-rtc/ui/components/select';
+
+import { CONSULT_REQUEST_STATUS_OPTIONS, DATE_RANGE_OPTIONS } from '#/constants/consult-request.constants';
 
 import {
   CONSULT_REQUEST_STATUSES,
@@ -17,22 +19,7 @@ import {
   type ConsultRequestsSearch,
 } from './consult-requests.types';
 
-const CONSULT_REQUEST_STATUS_OPTIONS: { label: string; value: ConsultRequestStatus }[] = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Accepted', value: 'accepted' },
-  { label: 'Closed', value: 'closed' },
-  { label: 'Cancelled', value: 'cancelled' },
-];
-
-const DATE_RANGE_OPTIONS: { label: string; value: ConsultRequestTimeRange }[] = [
-  { label: 'Today', value: 'today' },
-  { label: 'This week', value: 'this-week' },
-  { label: 'Next week', value: 'next-week' },
-  { label: 'Previous week', value: 'previous-week' },
-  { label: 'This month', value: 'this-month' },
-  { label: 'Next month', value: 'next-month' },
-  { label: 'Previous month', value: 'previous-month' },
-];
+const consultRequestsRoute = getRouteApi('/_protected/consult-requests/');
 
 const REQUEST_ID_DEBOUNCE_MS = 400;
 
@@ -43,7 +30,7 @@ type ConsultRequestsFilterProps = {
 };
 
 export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultRequestsFilterProps) => {
-  const navigate = useNavigate({ from: '/consult-requests' });
+  const navigate = consultRequestsRoute.useNavigate();
   const [requestIdInput, setRequestIdInput] = useState(requestId ?? '');
 
   useEffect(() => {
@@ -54,8 +41,9 @@ export const ConsultRequestsFilter = ({ status, time, requestId }: ConsultReques
     (next: Partial<Pick<ConsultRequestsSearch, 'status' | 'time' | 'requestId'>>, replace = false) => {
       void navigate({
         replace,
+        to: '.',
         search: (previous) => {
-          const nextSearch: ConsultRequestsSearch = {
+          const nextSearch = {
             ...previous,
             ...next,
             page: DEFAULT_CONSULT_REQUEST_PAGE,

@@ -1,5 +1,12 @@
 # @peer-rtc/app
 
+## 0.1.1
+
+### Patch Changes
+
+- 28b9545: Add an operator video call room for consult requests, with camera, mic, and
+  virtual background support.
+
 ## 0.1.0
 
 ### Minor Changes

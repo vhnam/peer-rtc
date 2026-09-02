@@ -12,7 +12,7 @@ import {
   parseConsultRequestsSearch,
 } from '#/modules/consult-requests';
 
-export const Route = createFileRoute('/_protected/consult-requests')({
+export const Route = createFileRoute('/_protected/consult-requests/')({
   validateSearch: parseConsultRequestsSearch,
   loaderDeps: ({ search }) => search,
   loader: ({ context: { queryClient, user }, deps }) =>

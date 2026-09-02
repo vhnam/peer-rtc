@@ -32,6 +32,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Copied from @mediapipe/tasks-vision on Vite start
+apps/peer-rtc-dashboard/public/mediapipe/
+
 # AI agent worktrees
 .claude/worktrees/
 !.vscode/
