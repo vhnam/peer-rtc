@@ -1,5 +1,11 @@
 # @peer-rtc/app
 
+## Unreleased
+
+### Minor Changes
+
+- Add consumer and provider end-call signaling, a confirm-end dialog, and join the call room on mount.
+
 ## 0.2.0
 
 ### Minor Changes

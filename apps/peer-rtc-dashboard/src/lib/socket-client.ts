@@ -2,18 +2,42 @@ import { useEffect } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
 import { env } from '#/env';
+import type { User } from '#/modules/consult-requests/consult-requests.types';
 
 import { authClient } from './auth-client';
 
-export interface ServerToClientEvents {}
+export type ConsumerAcceptedPayload = {
+  consultRequestId: string;
+  consumer: User;
+};
+
+export type ConsumerDeclinedPayload = {
+  consultRequestId: string;
+};
+
+export type ConsumerEndedPayload = {
+  consultRequestId: string;
+};
+
+export interface ServerToClientEvents {
+  consumer_accepted: (payload: ConsumerAcceptedPayload) => void;
+  consumer_declined: (payload: ConsumerDeclinedPayload) => void;
+  consumer_ended: (payload: ConsumerEndedPayload) => void;
+}
 
 export type ProviderJoinedPayload = {
   consultRequestId: string;
   consumerId: string;
 };
 
+export type ProviderEndedPayload = {
+  consultRequestId: string;
+  consumerId: string;
+};
+
 export interface ClientToServerEvents {
   provider_joined: (payload: ProviderJoinedPayload, ack: (response: unknown) => void) => void;
+  provider_ended: (payload: ProviderEndedPayload) => void;
 }
 
 export type PeerSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

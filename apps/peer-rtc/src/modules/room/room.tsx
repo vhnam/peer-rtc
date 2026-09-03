@@ -1,10 +1,13 @@
 import { useRouter } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button } from '@peer-rtc/ui/components/button';
+import { toast } from '@peer-rtc/ui/components/toast';
 
+import { authClient } from '#/lib/auth-client';
+import { socket, useProviderEnded } from '#/lib/socket-client';
 import { useVideoCall } from '#/lib/video-call';
 
+import { RoomConfirmEndCallDialog } from './room-confirm-end-call-dialog';
 import { RoomFooter } from './room-footer';
 import RoomHeader from './room-header';
 import RoomSheetDetails from './room-sheet-details';
@@ -26,12 +29,13 @@ const bindVideo = (video: HTMLVideoElement | null, stream: MediaStream | null) =
 
 const Room = ({ roomId }: RoomProps) => {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   const [openInfoSheet, setOpenInfoSheet] = useState(false);
-  const [inRoom, setInRoom] = useState(true);
+  const [openConfirmEndCallDialog, setOpenConfirmEndCallDialog] = useState(false);
 
   const {
     localStream,
@@ -44,28 +48,38 @@ const Room = ({ roomId }: RoomProps) => {
     toggleCamera,
   } = useVideoCall();
 
-  const handleLeaveRoom = () => {
+  useProviderEnded(roomId, () => {
     leave();
-    setInRoom(false);
-  };
+    void toast.add({
+      title: 'Call ended',
+      description: 'The provider ended the call',
+      type: 'info',
+    });
+    void router.navigate({ to: '/', replace: true });
+  });
 
-  const handleRejoinRoom = () => {
-    setInRoom(true);
-  };
-
-  const handleBackToHome = () => {
+  const handleConfirmEndCall = () => {
+    socket.emit('consumer_ended', {
+      consultRequestId: roomId,
+      consumerId: session?.user.id,
+    });
+    leave();
     void router.navigate({ to: '/', replace: true });
   };
 
-  useEffect(() => {
-    if (!inRoom) {
-      return;
-    }
+  const handleEndCall = () => {
+    setOpenConfirmEndCallDialog(true);
+  };
 
+  useEffect(() => {
     void join(roomId).catch((error: unknown) => {
       console.error(error);
     });
-  }, [inRoom, join, roomId]);
+
+    return () => {
+      leave();
+    };
+  }, [join, leave, roomId]);
 
   useEffect(() => {
     bindVideo(localVideoRef.current, localStream);
@@ -75,30 +89,24 @@ const Room = ({ roomId }: RoomProps) => {
     bindVideo(remoteVideoRef.current, remoteStream);
   }, [remoteStream]);
 
-  if (!inRoom) {
-    return (
-      <div className="flex h-dvh flex-col items-center justify-center">
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={handleRejoinRoom}>
-            Rejoin
-          </Button>
-          <Button onClick={handleBackToHome}>Back to home</Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-dvh flex-col">
       <RoomHeader roomId={roomId} setOpenInfoSheet={setOpenInfoSheet} />
 
       <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 lg:px-6">
         <div className="aspect-video max-h-full w-full max-w-[min(100%,calc((100dvh-8rem)*16/9))] overflow-hidden bg-muted">
-          <video ref={remoteVideoRef} className="size-full object-cover" autoPlay playsInline />
+          <video ref={remoteVideoRef} className="size-full object-cover" autoPlay playsInline disablePictureInPicture />
         </div>
 
-        <div className="absolute right-6 bottom-6 aspect-video w-32 overflow-hidden rounded-md shadow-lg sm:w-48">
-          <video ref={localVideoRef} className="size-full object-cover" autoPlay playsInline muted />
+        <div className="absolute right-6 bottom-6 aspect-video w-32 overflow-hidden shadow-lg sm:w-48">
+          <video
+            ref={localVideoRef}
+            className="size-full object-cover"
+            autoPlay
+            playsInline
+            muted
+            disablePictureInPicture
+          />
         </div>
       </div>
 
@@ -115,10 +123,16 @@ const Room = ({ roomId }: RoomProps) => {
             console.error(error);
           });
         }}
-        leaveRoom={handleLeaveRoom}
+        endCall={handleEndCall}
       />
 
       <RoomSheetDetails roomId={roomId} openInfoSheet={openInfoSheet} setOpenInfoSheet={setOpenInfoSheet} />
+
+      <RoomConfirmEndCallDialog
+        open={openConfirmEndCallDialog}
+        setOpen={setOpenConfirmEndCallDialog}
+        onConfirm={handleConfirmEndCall}
+      />
     </div>
   );
 };

@@ -16,6 +16,8 @@ export type CallRoomProps = {
 
 export type CallRoomStageProps = {
   isStartedCall: boolean;
+  isDeclined: boolean;
+  isEnded: boolean;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
   isCameraEnabled: boolean;
@@ -26,6 +28,8 @@ export type CallRoomStageProps = {
 
 export type CallRoomWaitingProps = {
   consumerName: string;
+  isDeclined?: boolean;
+  isEnded?: boolean;
 };
 
 export type CallRoomLocalMediaProps = {

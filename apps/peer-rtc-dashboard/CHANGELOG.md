@@ -1,5 +1,11 @@
 # @peer-rtc/dashboard
 
+## Unreleased
+
+### Minor Changes
+
+- Add consumer accepted, declined, and ended signaling, and show those states in the operator call room.
+
 ## 0.3.0
 
 ### Minor Changes
