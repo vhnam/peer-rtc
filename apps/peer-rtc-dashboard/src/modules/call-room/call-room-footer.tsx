@@ -13,23 +13,52 @@ import {
 
 import { Button } from '@peer-rtc/ui/components/button';
 import { ButtonGroup } from '@peer-rtc/ui/components/button-group';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@peer-rtc/ui/components/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@peer-rtc/ui/components/tooltip';
+
+import {
+  getCameraLabel,
+  getMicrophoneLabel,
+  useAudioInputDevices,
+  useVideoInputDevices,
+} from '#/lib/use-audio-input-devices';
+import type { VirtualBackgroundType } from '#/lib/video-call';
 
 import type { CallRoomFooterProps } from './call-room.types';
 
+const isVirtualBackgroundType = (value: string): value is VirtualBackgroundType => {
+  return value === 'blur' || value === 'default';
+};
+
 export const CallRoomFooter = ({
+  virtualBackgroundType,
+  onVirtualBackgroundTypeChange,
   isStartedCall,
   canStartCall,
   isCameraEnabled,
   isMicrophoneEnabled,
+  selectedMicrophoneDeviceId,
+  selectedCameraDeviceId,
   isVirtualBackgroundEnabled,
   onStartCall,
   onEndCall,
   onToggleCamera,
+  onCameraDeviceChange,
   onToggleMicrophone,
+  onMicrophoneDeviceChange,
   onToggleVirtualBackground,
 }: CallRoomFooterProps) => {
   const router = useRouter();
+  const microphoneDevices = useAudioInputDevices();
+  const cameraDevices = useVideoInputDevices();
 
   const handleBack = () => {
     router.history.back();
@@ -60,9 +89,30 @@ export const CallRoomFooter = ({
               <p>{isMicrophoneEnabled ? 'Turn off microphone' : 'Turn on microphone'}</p>
             </TooltipContent>
           </Tooltip>
-          <Button variant="outline" size="icon">
-            <ChevronDownIcon />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="icon">
+                  <ChevronDownIcon />
+                </Button>
+              }
+            />
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Select microphone</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={selectedMicrophoneDeviceId ?? ''}
+                  onValueChange={onMicrophoneDeviceChange}
+                >
+                  {microphoneDevices.map((device, index) => (
+                    <DropdownMenuRadioItem key={device.deviceId} value={device.deviceId}>
+                      {getMicrophoneLabel(device, index)}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </ButtonGroup>
         <ButtonGroup>
           <Tooltip>
@@ -84,9 +134,27 @@ export const CallRoomFooter = ({
             </TooltipContent>
           </Tooltip>
 
-          <Button variant="outline" size="icon">
-            <ChevronDownIcon />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="icon">
+                  <ChevronDownIcon />
+                </Button>
+              }
+            />
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Select camera</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={selectedCameraDeviceId ?? ''} onValueChange={onCameraDeviceChange}>
+                  {cameraDevices.map((device, index) => (
+                    <DropdownMenuRadioItem key={device.deviceId} value={device.deviceId}>
+                      {getCameraLabel(device, index)}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </ButtonGroup>
         <ButtonGroup>
           <Tooltip>
@@ -108,9 +176,31 @@ export const CallRoomFooter = ({
               <p>{isVirtualBackgroundEnabled ? 'Turn off virtual background' : 'Turn on virtual background'}</p>
             </TooltipContent>
           </Tooltip>
-          <Button variant="outline" size="icon">
-            <ChevronDownIcon />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="icon">
+                  <ChevronDownIcon />
+                </Button>
+              }
+            />
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Select background type</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={virtualBackgroundType}
+                  onValueChange={(value) => {
+                    if (isVirtualBackgroundType(value)) {
+                      onVirtualBackgroundTypeChange(value);
+                    }
+                  }}
+                >
+                  <DropdownMenuRadioItem value="blur">Blur background</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="default">Default background</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </ButtonGroup>
       </div>
       <div className="pr-(--sidebar-width) mr-4">

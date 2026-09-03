@@ -24,9 +24,9 @@ import {
   SidebarRail,
   useSidebar,
 } from '@peer-rtc/ui/components/sidebar';
+import { getAvatarInitials } from '@peer-rtc/ui/lib/avatar';
 
 import { authClient } from '#/lib/auth-client';
-import { getAvatarInitials } from '#/utils/avatar';
 
 type NavUrl = '/' | '/consult-requests';
 

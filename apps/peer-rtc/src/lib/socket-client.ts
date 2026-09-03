@@ -15,9 +15,12 @@ export type ProviderJoinedPayload = ConsultRequestSocketPayload;
 
 export type ProviderEndedPayload = ConsultRequestSocketPayload;
 
+export type ConsumerNotPickupPayload = ConsultRequestSocketPayload;
+
 export interface ServerToClientEvents {
   provider_joined: (payload: ProviderJoinedPayload) => void;
   provider_ended: (payload: ProviderEndedPayload) => void;
+  consumer_not_pickup: (payload: ConsumerNotPickupPayload) => void;
 }
 
 export interface ClientToServerEvents {
@@ -69,6 +72,7 @@ export const useProviderJoinedPrompt = (enabled = true) => {
   const navigate = useNavigate();
   const { data: session } = authClient.useSession();
   const [invitation, setInvitation] = useState<ProviderJoinedPayload | null>(null);
+  const [missedCall, setMissedCall] = useState<ConsumerNotPickupPayload | null>(null);
   const [isResponding, setIsResponding] = useState(false);
 
   useEffect(() => {
@@ -81,13 +85,31 @@ export const useProviderJoinedPrompt = (enabled = true) => {
         return;
       }
 
+      setMissedCall(null);
       setInvitation(payload);
     };
 
+    const onConsumerNotPickup = (payload: ConsumerNotPickupPayload) => {
+      if (!payload.consultRequestId) {
+        return;
+      }
+
+      setInvitation((current) => {
+        if (current?.consultRequestId === payload.consultRequestId) {
+          return null;
+        }
+
+        return current;
+      });
+      setMissedCall(payload);
+    };
+
     socket.on('provider_joined', onProviderJoined);
+    socket.on('consumer_not_pickup', onConsumerNotPickup);
 
     return () => {
       socket.off('provider_joined', onProviderJoined);
+      socket.off('consumer_not_pickup', onConsumerNotPickup);
     };
   }, [enabled]);
 
@@ -127,12 +149,19 @@ export const useProviderJoinedPrompt = (enabled = true) => {
     close();
   };
 
+  const dismissMissedCall = () => {
+    setMissedCall(null);
+  };
+
   return {
     invitation,
     isOpen: invitation !== null,
+    missedCall,
+    isMissedCallOpen: missedCall !== null,
     isResponding,
     accept,
     decline,
+    dismissMissedCall,
   };
 };
 

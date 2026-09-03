@@ -1,5 +1,6 @@
 import type { MediaConnection, Peer } from 'peerjs';
 
+import { findRtpSenderForKind } from './find-rtp-sender';
 import { LocalMedia } from './local-media';
 import { joinPeerSession } from './peer-session';
 import type { CallRole, VideoCallOptions, VideoCallState } from './types';
@@ -200,9 +201,17 @@ export class VideoCall {
   };
 
   private handleTrackReplaced = (kind: 'audio' | 'video', track: MediaStreamTrack | null) => {
-    const senders = this.activeCall?.peerConnection?.getSenders();
-    const sender = senders?.find((s) => s.track?.kind === kind);
-    void sender?.replaceTrack(track);
+    const peerConnection = this.activeCall?.peerConnection;
+    if (!peerConnection) {
+      return;
+    }
+
+    const sender = findRtpSenderForKind(peerConnection, kind);
+    if (!sender) {
+      return;
+    }
+
+    void sender.replaceTrack(track);
   };
 
   private setState(patch: Partial<VideoCallState>) {

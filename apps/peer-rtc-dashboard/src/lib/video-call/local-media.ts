@@ -1,4 +1,4 @@
-import type { VirtualBackground } from './virtual-background';
+import type { VirtualBackground, VirtualBackgroundType } from './virtual-background';
 
 const stopStreamTracks = (stream: MediaStream | null | undefined) => {
   stream?.getTracks().forEach((track) => {
@@ -21,6 +21,9 @@ export class LocalMedia {
   private processedVideoStream: MediaStream | null = null;
   private virtualBackground: VirtualBackground | null = null;
   private virtualBackgroundEnabled = false;
+  private virtualBackgroundType: VirtualBackgroundType = 'blur';
+  private selectedAudioDeviceId: string | null = null;
+  private selectedVideoDeviceId: string | null = null;
   private publishGeneration = 0;
   private disposed = false;
 
@@ -42,15 +45,42 @@ export class LocalMedia {
     return this.virtualBackgroundEnabled;
   }
 
-  async startCamera() {
+  getVirtualBackgroundType() {
+    return this.virtualBackgroundType;
+  }
+
+  getSelectedMicrophoneDeviceId() {
+    const track = this.audioDeviceStream?.getAudioTracks()[0];
+    return track?.getSettings().deviceId ?? this.selectedAudioDeviceId;
+  }
+
+  getSelectedCameraDeviceId() {
+    const track = this.videoDeviceStream?.getVideoTracks()[0];
+    return track?.getSettings().deviceId ?? this.selectedVideoDeviceId;
+  }
+
+  async startCamera(deviceId?: string) {
     if (this.disposed) {
       return false;
     }
 
-    const nextStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (deviceId) {
+      this.selectedVideoDeviceId = deviceId;
+    }
+
+    const videoConstraints: boolean | MediaTrackConstraints =
+      this.selectedVideoDeviceId != null ? { deviceId: { exact: this.selectedVideoDeviceId } } : true;
+
+    const nextStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
     if (this.disposed) {
       stopStreamTracks(nextStream);
       return false;
+    }
+
+    const [track] = nextStream.getVideoTracks();
+    const activeDeviceId = track?.getSettings().deviceId;
+    if (activeDeviceId) {
+      this.selectedVideoDeviceId = activeDeviceId;
     }
 
     stopStreamTracks(this.videoDeviceStream);
@@ -59,21 +89,66 @@ export class LocalMedia {
     return this.isCameraEnabled();
   }
 
-  async startMicrophone() {
+  async setCameraDevice(deviceId: string) {
+    if (this.disposed) {
+      return;
+    }
+
+    const wasEnabled = this.isCameraEnabled();
+    this.selectedVideoDeviceId = deviceId;
+
+    if (wasEnabled) {
+      await this.startCamera(deviceId);
+      return;
+    }
+
+    this.callbacks.onChange();
+  }
+
+  async startMicrophone(deviceId?: string) {
     if (this.disposed) {
       return false;
     }
 
-    const nextStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (deviceId) {
+      this.selectedAudioDeviceId = deviceId;
+    }
+
+    const audioConstraints: boolean | MediaTrackConstraints =
+      this.selectedAudioDeviceId != null ? { deviceId: { exact: this.selectedAudioDeviceId } } : true;
+
+    const nextStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
     if (this.disposed) {
       stopStreamTracks(nextStream);
       return false;
+    }
+
+    const [track] = nextStream.getAudioTracks();
+    const activeDeviceId = track?.getSettings().deviceId;
+    if (activeDeviceId) {
+      this.selectedAudioDeviceId = activeDeviceId;
     }
 
     stopStreamTracks(this.audioDeviceStream);
     this.audioDeviceStream = nextStream;
     this.replaceOutgoingTracks('audio', nextStream);
     return this.isMicrophoneEnabled();
+  }
+
+  async setMicrophoneDevice(deviceId: string) {
+    if (this.disposed) {
+      return;
+    }
+
+    const wasEnabled = this.isMicrophoneEnabled();
+    this.selectedAudioDeviceId = deviceId;
+
+    if (wasEnabled) {
+      await this.startMicrophone(deviceId);
+      return;
+    }
+
+    this.callbacks.onChange();
   }
 
   stopCamera() {
@@ -128,6 +203,28 @@ export class LocalMedia {
     return this.virtualBackgroundEnabled;
   }
 
+  async setVirtualBackgroundType(type: VirtualBackgroundType) {
+    if (this.disposed) {
+      return this.virtualBackgroundType;
+    }
+
+    const previousType = this.virtualBackgroundType;
+    this.virtualBackgroundType = type;
+    this.callbacks.onChange();
+
+    if (this.virtualBackgroundEnabled && this.virtualBackground) {
+      try {
+        await this.virtualBackground.setBackgroundType(type);
+      } catch (error: unknown) {
+        this.virtualBackgroundType = previousType;
+        this.callbacks.onChange();
+        throw error;
+      }
+    }
+
+    return this.virtualBackgroundType;
+  }
+
   async toggleVirtualBackground() {
     return this.setVirtualBackgroundEnabled(!this.virtualBackgroundEnabled);
   }
@@ -166,7 +263,10 @@ export class LocalMedia {
       }
 
       this.virtualBackground ??= new VirtualBackground();
-      this.processedVideoStream = await this.virtualBackground.start(this.videoDeviceStream);
+      this.processedVideoStream = await this.virtualBackground.start(
+        this.videoDeviceStream,
+        this.virtualBackgroundType,
+      );
       if (this.disposed || generation !== this.publishGeneration || !this.virtualBackgroundEnabled) {
         if (generation === this.publishGeneration) {
           this.stopVirtualBackgroundProcessor();

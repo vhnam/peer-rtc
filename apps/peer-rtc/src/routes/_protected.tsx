@@ -2,7 +2,7 @@ import { Outlet, createFileRoute, redirect, useMatchRoute } from '@tanstack/reac
 
 import { getAuthClient } from '@peer-rtc/auth';
 
-import ProtectedLayout from '#/layouts/protected-layout';
+import { ProtectedLayout } from '#/layouts/protected-layout';
 import { useSocketConnection } from '#/lib/socket-client';
 import { ProviderJoinedDialog } from '#/modules/consult-requests/provider-joined-dialog';
 

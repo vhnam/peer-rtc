@@ -1,5 +1,14 @@
 # peer-rtc
 
+## 0.0.5
+
+### Patch Changes
+
+- Add call-room footer microphone and camera device selection, virtual
+  background type selection, a 30-second consumer pickup timeout with no-pickup
+  and missed-call signaling, fix remote video freeze after camera toggle, and
+  share theme helpers plus avatar utils from @peer-rtc/ui.
+
 ## 0.0.4
 
 ### Patch Changes

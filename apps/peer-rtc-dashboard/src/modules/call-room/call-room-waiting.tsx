@@ -1,6 +1,5 @@
+import { getAvatarInitials } from '@peer-rtc/ui/lib/avatar';
 import { cn } from '@peer-rtc/ui/lib/utils';
-
-import { getAvatarInitials } from '#/utils/avatar';
 
 import type { CallRoomWaitingProps } from './call-room.types';
 
@@ -10,9 +9,14 @@ const RIPPLE_RINGS = [
   { size: '12rem', borderClassName: 'border-primary/20', delayMs: 800 },
 ] as const;
 
-export const CallRoomWaiting = ({ consumerName, isDeclined = false, isEnded = false }: CallRoomWaitingProps) => {
+export const CallRoomWaiting = ({
+  consumerName,
+  isDeclined = false,
+  isEnded = false,
+  isNoPickup = false,
+}: CallRoomWaitingProps) => {
   const initials = getAvatarInitials(consumerName);
-  const isNotice = isDeclined || isEnded;
+  const isNotice = isDeclined || isEnded || isNoPickup;
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-6">
@@ -40,11 +44,13 @@ export const CallRoomWaiting = ({ consumerName, isDeclined = false, isEnded = fa
 
       <div className="flex max-w-sm flex-col items-center gap-2 text-center">
         <p className="text-base font-medium text-muted-foreground">
-          {isEnded
-            ? 'Consumer ended the call'
-            : isDeclined
-              ? 'Consumer declined the call'
-              : `Waiting for ${consumerName}...`}
+          {isNoPickup
+            ? 'Consumer did not pick up the call'
+            : isEnded
+              ? 'Consumer ended the call'
+              : isDeclined
+                ? 'Consumer declined the call'
+                : `Waiting for ${consumerName}...`}
         </p>
       </div>
     </div>

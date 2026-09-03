@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 
-import { canUseViewTransition, switchThemeWithTransition } from './theme-transition';
+import { canUseViewTransition, switchThemeWithTransition } from './theme';
 
-describe('theme-transition', () => {
+describe('theme', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();

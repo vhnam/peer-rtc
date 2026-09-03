@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
-import type { VideoCallOptions, VideoCallState } from '../types';
+import type { VideoCallOptions, VideoCallState, VirtualBackgroundType } from '../types';
 import { VideoCall } from '../video-call';
 
 const INITIAL_STATE: VideoCallState = {
@@ -11,7 +11,10 @@ const INITIAL_STATE: VideoCallState = {
   isRemoteConnected: false,
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
+  selectedMicrophoneDeviceId: null,
+  selectedCameraDeviceId: null,
   isVirtualBackgroundEnabled: false,
+  virtualBackgroundType: 'blur',
   error: null,
 };
 
@@ -68,12 +71,24 @@ export const useVideoCall = (options?: VideoCallOptions) => {
     await callRef.current?.toggleCamera();
   }, []);
 
+  const setCameraDevice = useCallback(async (deviceId: string) => {
+    await callRef.current?.setCameraDevice(deviceId);
+  }, []);
+
   const toggleMicrophone = useCallback(async () => {
     await callRef.current?.toggleMicrophone();
   }, []);
 
+  const setMicrophoneDevice = useCallback(async (deviceId: string) => {
+    await callRef.current?.setMicrophoneDevice(deviceId);
+  }, []);
+
   const toggleVirtualBackground = useCallback(async () => {
     await callRef.current?.toggleVirtualBackground();
+  }, []);
+
+  const setVirtualBackgroundType = useCallback(async (type: VirtualBackgroundType) => {
+    await callRef.current?.setVirtualBackgroundType(type);
   }, []);
 
   return {
@@ -83,7 +98,10 @@ export const useVideoCall = (options?: VideoCallOptions) => {
     startCamera,
     startMicrophone,
     toggleCamera,
+    setCameraDevice,
     toggleMicrophone,
+    setMicrophoneDevice,
     toggleVirtualBackground,
+    setVirtualBackgroundType,
   };
 };

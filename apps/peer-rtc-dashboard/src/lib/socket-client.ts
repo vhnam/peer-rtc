@@ -35,9 +35,15 @@ export type ProviderEndedPayload = {
   consumerId: string;
 };
 
+export type ConsumerNotPickupPayload = {
+  consultRequestId: string;
+  consumerId: string;
+};
+
 export interface ClientToServerEvents {
   provider_joined: (payload: ProviderJoinedPayload, ack: (response: unknown) => void) => void;
   provider_ended: (payload: ProviderEndedPayload) => void;
+  consumer_not_pickup: (payload: ConsumerNotPickupPayload) => void;
 }
 
 export type PeerSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

@@ -1,1 +1,1 @@
-export { ThemeProvider, useTheme } from '#/lib/theme-provider';
+export { ThemeProvider, useTheme } from '#/lib/theme/theme-provider';

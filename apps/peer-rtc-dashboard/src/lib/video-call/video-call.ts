@@ -1,8 +1,9 @@
 import type { MediaConnection, Peer } from 'peerjs';
 
+import { findRtpSenderForKind } from './find-rtp-sender';
 import { LocalMedia } from './local-media';
 import { joinPeerSession } from './peer-session';
-import type { CallRole, VideoCallOptions, VideoCallState } from './types';
+import type { CallRole, VideoCallOptions, VideoCallState, VirtualBackgroundType } from './types';
 
 const createInitialState = (): VideoCallState => ({
   status: 'idle',
@@ -12,7 +13,10 @@ const createInitialState = (): VideoCallState => ({
   isRemoteConnected: false,
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
+  selectedMicrophoneDeviceId: null,
+  selectedCameraDeviceId: null,
   isVirtualBackgroundEnabled: false,
+  virtualBackgroundType: 'blur',
   error: null,
 });
 
@@ -96,7 +100,10 @@ export class VideoCall {
       localStream: this.localMedia.getStream(),
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
+      selectedMicrophoneDeviceId: this.localMedia.getSelectedMicrophoneDeviceId(),
+      selectedCameraDeviceId: this.localMedia.getSelectedCameraDeviceId(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
+      virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });
   };
 
@@ -130,8 +137,26 @@ export class VideoCall {
     await this.localMedia.toggleCamera();
   };
 
+  setCameraDevice = async (deviceId: string): Promise<void> => {
+    try {
+      await this.localMedia.setCameraDevice(deviceId);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
+    }
+  };
+
   toggleMicrophone = async (): Promise<void> => {
     await this.localMedia.toggleMicrophone();
+  };
+
+  setMicrophoneDevice = async (deviceId: string): Promise<void> => {
+    try {
+      await this.localMedia.setMicrophoneDevice(deviceId);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
+    }
   };
 
   toggleVirtualBackground = async (): Promise<void> => {
@@ -139,6 +164,15 @@ export class VideoCall {
       await this.localMedia.toggleVirtualBackground();
     } catch (error: unknown) {
       this.setState({ error: error as Error });
+    }
+  };
+
+  setVirtualBackgroundType = async (type: VirtualBackgroundType): Promise<void> => {
+    try {
+      await this.localMedia.setVirtualBackgroundType(type);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
     }
   };
 
@@ -248,14 +282,25 @@ export class VideoCall {
       localStream: this.localMedia.getStream(),
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
+      selectedMicrophoneDeviceId: this.localMedia.getSelectedMicrophoneDeviceId(),
+      selectedCameraDeviceId: this.localMedia.getSelectedCameraDeviceId(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
+      virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });
   };
 
   private handleTrackReplaced = (kind: 'audio' | 'video', track: MediaStreamTrack | null) => {
-    const senders = this.activeCall?.peerConnection?.getSenders();
-    const sender = senders?.find((s) => s.track?.kind === kind);
-    void sender?.replaceTrack(track);
+    const peerConnection = this.activeCall?.peerConnection;
+    if (!peerConnection) {
+      return;
+    }
+
+    const sender = findRtpSenderForKind(peerConnection, kind);
+    if (!sender) {
+      return;
+    }
+
+    void sender.replaceTrack(track);
   };
 
   private setState(patch: Partial<VideoCallState>) {

@@ -1,3 +1,4 @@
+import type { VirtualBackgroundType } from '#/lib/video-call';
 import type { ConsultRequest } from '#/modules/consult-requests/consult-requests.types';
 
 export type Position = {
@@ -18,6 +19,7 @@ export type CallRoomStageProps = {
   isStartedCall: boolean;
   isDeclined: boolean;
   isEnded: boolean;
+  isNoPickup: boolean;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
   isCameraEnabled: boolean;
@@ -30,6 +32,7 @@ export type CallRoomWaitingProps = {
   consumerName: string;
   isDeclined?: boolean;
   isEnded?: boolean;
+  isNoPickup?: boolean;
 };
 
 export type CallRoomLocalMediaProps = {
@@ -50,10 +53,16 @@ export type CallRoomFooterProps = {
   canStartCall: boolean;
   isCameraEnabled: boolean;
   isMicrophoneEnabled: boolean;
+  selectedMicrophoneDeviceId: string | null;
+  selectedCameraDeviceId: string | null;
   isVirtualBackgroundEnabled: boolean;
+  virtualBackgroundType: VirtualBackgroundType;
   onStartCall: () => void;
   onEndCall: () => void;
   onToggleCamera: () => void;
+  onCameraDeviceChange: (deviceId: string) => void;
   onToggleMicrophone: () => void;
+  onMicrophoneDeviceChange: (deviceId: string) => void;
   onToggleVirtualBackground: () => void;
+  onVirtualBackgroundTypeChange: (type: VirtualBackgroundType) => void;
 };

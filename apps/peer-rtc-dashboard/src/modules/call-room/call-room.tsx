@@ -1,7 +1,9 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import { useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_STAFF_DISPLAY_NAME } from '#/constants/call-room.constants';
+import { getAvatarInitials } from '@peer-rtc/ui/lib/avatar';
+
+import { DEFAULT_STAFF_DISPLAY_NAME, CONSUMER_PICKUP_TIMEOUT_MS } from '#/constants/call-room.constants';
 import { authClient } from '#/lib/auth-client';
 import {
   socket,
@@ -10,7 +12,6 @@ import {
   type ConsumerEndedPayload,
 } from '#/lib/socket-client';
 import { useVideoCall } from '#/lib/video-call';
-import { getAvatarInitials } from '#/utils/avatar';
 
 import { CallRoomConsumerInfo } from './call-room-consumer-info';
 import { CallRoomFooter } from './call-room-footer';
@@ -18,11 +19,21 @@ import { CallRoomStage } from './call-room-stage';
 import type { CallRoomProps } from './call-room.types';
 
 export const CallRoom = ({ consultRequest }: CallRoomProps) => {
+  const isAwaitingConsumerRef = useRef(false);
+  const pickupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [isStartedCall, setIsStartedCall] = useState(false);
   const [isDeclined, setIsDeclined] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
+  const [isNoPickup, setIsNoPickup] = useState(false);
   const [hasConsumerAccepted, setHasConsumerAccepted] = useState(false);
-  const isAwaitingConsumerRef = useRef(false);
+
+  const clearPickupTimeout = () => {
+    if (pickupTimeoutRef.current !== null) {
+      clearTimeout(pickupTimeoutRef.current);
+      pickupTimeoutRef.current = null;
+    }
+  };
 
   const { data: session } = authClient.useSession();
   const user = session?.user;
@@ -34,14 +45,20 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
     remoteStream,
     isCameraEnabled,
     isMicrophoneEnabled,
+    selectedMicrophoneDeviceId,
+    selectedCameraDeviceId,
     isVirtualBackgroundEnabled,
+    virtualBackgroundType,
     join,
     leave,
     startCamera,
     startMicrophone,
     toggleCamera,
+    setCameraDevice,
     toggleMicrophone,
+    setMicrophoneDevice,
     toggleVirtualBackground,
+    setVirtualBackgroundType,
   } = useVideoCall();
 
   const isWaitingForConsumer = !hasConsumerAccepted || !isRemoteConnected;
@@ -57,14 +74,22 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
   }, [startCamera, startMicrophone]);
 
   useEffect(() => {
+    return () => {
+      clearPickupTimeout();
+    };
+  }, []);
+
+  useEffect(() => {
     const onConsumerAccepted = (payload: ConsumerAcceptedPayload) => {
       if (payload.consultRequestId !== consultRequest.id || !isAwaitingConsumerRef.current) {
         return;
       }
 
+      clearPickupTimeout();
       isAwaitingConsumerRef.current = false;
       setIsDeclined(false);
       setIsEnded(false);
+      setIsNoPickup(false);
       setHasConsumerAccepted(true);
 
       void join(consultRequest.id).catch((error: unknown) => {
@@ -79,9 +104,11 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
         return;
       }
 
+      clearPickupTimeout();
       isAwaitingConsumerRef.current = false;
       setHasConsumerAccepted(false);
       setIsEnded(false);
+      setIsNoPickup(false);
       setIsDeclined(true);
       leave();
     };
@@ -91,9 +118,11 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
         return;
       }
 
+      clearPickupTimeout();
       isAwaitingConsumerRef.current = false;
       setHasConsumerAccepted(false);
       setIsDeclined(false);
+      setIsNoPickup(false);
       setIsEnded(true);
       leave();
     };
@@ -117,8 +146,25 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
     isAwaitingConsumerRef.current = true;
     setIsDeclined(false);
     setIsEnded(false);
+    setIsNoPickup(false);
     setHasConsumerAccepted(false);
     setIsStartedCall(true);
+
+    clearPickupTimeout();
+    pickupTimeoutRef.current = setTimeout(() => {
+      if (!isAwaitingConsumerRef.current) {
+        return;
+      }
+
+      isAwaitingConsumerRef.current = false;
+      pickupTimeoutRef.current = null;
+      setIsNoPickup(true);
+
+      socket.emit('consumer_not_pickup', {
+        consultRequestId: consultRequest.id,
+        consumerId: consultRequest.consumer.id,
+      });
+    }, CONSUMER_PICKUP_TIMEOUT_MS);
 
     void socket
       .emitWithAck('provider_joined', {
@@ -126,6 +172,7 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
         consumerId: consultRequest.consumer.id,
       })
       .catch((error: unknown) => {
+        clearPickupTimeout();
         isAwaitingConsumerRef.current = false;
         setIsStartedCall(false);
         console.error(error);
@@ -133,10 +180,12 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
   };
 
   const handleEndCall = () => {
+    clearPickupTimeout();
     isAwaitingConsumerRef.current = false;
     setHasConsumerAccepted(false);
     setIsDeclined(false);
     setIsEnded(false);
+    setIsNoPickup(false);
     setIsStartedCall(false);
     leave();
 
@@ -158,6 +207,7 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
             isStartedCall={isStartedCall}
             isDeclined={isDeclined}
             isEnded={isEnded}
+            isNoPickup={isNoPickup}
             placeholder={getAvatarInitials(displayName)}
             consumerName={consultRequest.consumer.name}
           />
@@ -166,10 +216,12 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
       </div>
 
       <CallRoomFooter
-        isStartedCall={isStartedCall && !isDeclined && !isEnded}
+        isStartedCall={isStartedCall && !isDeclined && !isEnded && !isNoPickup}
         canStartCall={canStartCall}
         isCameraEnabled={isCameraEnabled}
         isMicrophoneEnabled={isMicrophoneEnabled}
+        selectedMicrophoneDeviceId={selectedMicrophoneDeviceId}
+        selectedCameraDeviceId={selectedCameraDeviceId}
         isVirtualBackgroundEnabled={isVirtualBackgroundEnabled}
         onStartCall={handleStartCall}
         onEndCall={handleEndCall}
@@ -178,13 +230,29 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
             console.error(error);
           });
         }}
+        onMicrophoneDeviceChange={(deviceId) => {
+          void setMicrophoneDevice(deviceId).catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
         onToggleCamera={() => {
           void toggleCamera().catch((error: unknown) => {
             console.error(error);
           });
         }}
+        onCameraDeviceChange={(deviceId) => {
+          void setCameraDevice(deviceId).catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
         onToggleVirtualBackground={() => {
           void toggleVirtualBackground().catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
+        virtualBackgroundType={virtualBackgroundType}
+        onVirtualBackgroundTypeChange={(type) => {
+          void setVirtualBackgroundType(type).catch((error: unknown) => {
             console.error(error);
           });
         }}
