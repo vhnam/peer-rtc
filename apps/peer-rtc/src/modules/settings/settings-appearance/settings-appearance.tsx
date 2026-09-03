@@ -92,29 +92,31 @@ function SettingsAppearance() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-1 border-b pb-4">
-        <h1 className="font-heading text-2xl font-semibold">Appearance</h1>
-        <p className="text-sm text-muted-foreground">Choose your preferred color theme.</p>
-      </div>
+    <div className="container mx-auto px-4">
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-1 border-b pb-4">
+          <h1 className="font-heading text-2xl font-semibold">Appearance</h1>
+          <p className="text-sm text-muted-foreground">Choose your preferred color theme.</p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Theme</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-3">
-            {themeOptions.map((option) => (
-              <ThemeOption
-                key={option.value}
-                {...option}
-                selected={theme === option.value}
-                onSelect={handleThemeSelect}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Theme</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-3">
+              {themeOptions.map((option) => (
+                <ThemeOption
+                  key={option.value}
+                  {...option}
+                  selected={theme === option.value}
+                  onSelect={handleThemeSelect}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

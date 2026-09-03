@@ -2,12 +2,15 @@ import type { ImageSegmenter, ImageSegmenterResult } from '@mediapipe/tasks-visi
 
 const WASM_BASE = '/mediapipe/wasm';
 const SELFIE_SEGMENTER_MODEL = '/mediapipe/selfie_segmenter_landscape.tflite';
+const DEFAULT_BACKGROUND_IMAGE_URL = '/virtual-background.png';
 
 const BLUR_PX = 16;
 
+export type VirtualBackgroundType = 'blur' | 'default';
+
 /**
  * Runs MediaPipe Image Segmenter on a camera stream and composites the person
- * over a blurred copy of the same frame.
+ * over either a blurred frame or a static background image.
  */
 export class VirtualBackground {
   private segmenter: ImageSegmenter | null = null;
@@ -24,6 +27,9 @@ export class VirtualBackground {
   private running = false;
   private frameHandle: number | null = null;
   private lastTimestamp = -1;
+  private backgroundType: VirtualBackgroundType = 'blur';
+  private backgroundImage: HTMLImageElement | null = null;
+  private backgroundImagePromise: Promise<HTMLImageElement> | null = null;
 
   constructor() {
     const outputCtx = this.outputCanvas.getContext('2d', { alpha: false });
@@ -59,9 +65,22 @@ export class VirtualBackground {
     return this.outputStream;
   }
 
-  async start(input: MediaStream): Promise<MediaStream> {
+  getBackgroundType() {
+    return this.backgroundType;
+  }
+
+  async setBackgroundType(type: VirtualBackgroundType) {
+    if (type === 'default') {
+      await this.loadBackgroundImage();
+    }
+
+    this.backgroundType = type;
+  }
+
+  async start(input: MediaStream, type: VirtualBackgroundType = this.backgroundType): Promise<MediaStream> {
     this.stopLoop();
     this.segmenter ??= await this.getSegmenter();
+    await this.setBackgroundType(type);
 
     this.video.srcObject = input;
     await this.video.play();
@@ -90,6 +109,36 @@ export class VirtualBackground {
     this.segmenter?.close();
     this.segmenter = null;
     this.segmenterPromise = null;
+    this.backgroundImage = null;
+    this.backgroundImagePromise = null;
+  }
+
+  private async loadBackgroundImage() {
+    if (this.backgroundImage) {
+      return this.backgroundImage;
+    }
+
+    this.backgroundImagePromise ??= new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        resolve(image);
+      };
+      image.onerror = () => {
+        reject(new Error('Failed to load virtual background image'));
+      };
+      image.src = DEFAULT_BACKGROUND_IMAGE_URL;
+    })
+      .then((image) => {
+        this.backgroundImage = image;
+        return image;
+      })
+      .catch((error: unknown) => {
+        this.backgroundImagePromise = null;
+        throw error;
+      });
+
+    return this.backgroundImagePromise;
   }
 
   private async getSegmenter() {
@@ -206,13 +255,32 @@ export class VirtualBackground {
     this.personCtx.drawImage(this.maskCanvas, 0, 0, width, height);
     this.personCtx.globalCompositeOperation = 'source-over';
 
-    this.outputCtx.filter = `blur(${BLUR_PX}px)`;
-    this.outputCtx.drawImage(this.video, 0, 0, width, height);
-    this.outputCtx.filter = 'none';
+    this.drawBackground(width, height);
     this.outputCtx.drawImage(this.personCanvas, 0, 0, width, height);
 
     result.close();
   };
+
+  private drawBackground(width: number, height: number) {
+    if (this.backgroundType === 'default' && this.backgroundImage) {
+      this.outputCtx.filter = 'none';
+      this.drawImageCover(this.backgroundImage, width, height);
+      return;
+    }
+
+    this.outputCtx.filter = `blur(${BLUR_PX}px)`;
+    this.outputCtx.drawImage(this.video, 0, 0, width, height);
+    this.outputCtx.filter = 'none';
+  }
+
+  private drawImageCover(image: HTMLImageElement, width: number, height: number) {
+    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+    const drawWidth = image.naturalWidth * scale;
+    const drawHeight = image.naturalHeight * scale;
+    const x = (width - drawWidth) / 2;
+    const y = (height - drawHeight) / 2;
+    this.outputCtx.drawImage(image, x, y, drawWidth, drawHeight);
+  }
 
   private writeMask(mask: { width: number; height: number; getAsFloat32Array: () => Float32Array }) {
     if (this.maskCanvas.width !== mask.width || this.maskCanvas.height !== mask.height) {

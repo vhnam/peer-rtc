@@ -5,6 +5,7 @@ import type { QueryRouterContext } from '@peer-rtc/query';
 import { Toaster } from '@peer-rtc/ui/components/toast';
 import { TooltipProvider } from '@peer-rtc/ui/components/tooltip';
 import appCss from '@peer-rtc/ui/globals.css?url';
+import { ThemeProvider } from '@peer-rtc/ui/hooks/use-theme';
 
 export const Route = createRootRouteWithContext<QueryRouterContext>()({
   head: () => ({
@@ -48,8 +49,10 @@ function RootDocument({ children }: PropsWithChildren) {
         <HeadContent />
       </head>
       <body>
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+        <ThemeProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

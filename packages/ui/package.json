@@ -11,8 +11,7 @@
     "./globals.css": "./src/styles/globals.css",
     "./components/password-input": "./src/components/password-input/index.ts",
     "./components/*": "./src/components/ui/*.tsx",
-    "./lib/theme-provider": "./src/lib/theme-provider.tsx",
-    "./lib/*": "./src/lib/*.ts",
+    "./lib/*": "./src/lib/*/index.ts",
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {

@@ -1,8 +1,9 @@
 import type { MediaConnection, Peer } from 'peerjs';
 
+import { findRtpSenderForKind } from './find-rtp-sender';
 import { LocalMedia } from './local-media';
 import { joinPeerSession } from './peer-session';
-import type { CallRole, VideoCallOptions, VideoCallState } from './types';
+import type { CallRole, VideoCallOptions, VideoCallState, VirtualBackgroundType } from './types';
 
 const createInitialState = (): VideoCallState => ({
   status: 'idle',
@@ -13,6 +14,7 @@ const createInitialState = (): VideoCallState => ({
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
   isVirtualBackgroundEnabled: false,
+  virtualBackgroundType: 'blur',
   error: null,
 });
 
@@ -97,6 +99,7 @@ export class VideoCall {
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
+      virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });
   };
 
@@ -139,6 +142,15 @@ export class VideoCall {
       await this.localMedia.toggleVirtualBackground();
     } catch (error: unknown) {
       this.setState({ error: error as Error });
+    }
+  };
+
+  setVirtualBackgroundType = async (type: VirtualBackgroundType): Promise<void> => {
+    try {
+      await this.localMedia.setVirtualBackgroundType(type);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
     }
   };
 
@@ -249,13 +261,22 @@ export class VideoCall {
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
+      virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });
   };
 
   private handleTrackReplaced = (kind: 'audio' | 'video', track: MediaStreamTrack | null) => {
-    const senders = this.activeCall?.peerConnection?.getSenders();
-    const sender = senders?.find((s) => s.track?.kind === kind);
-    void sender?.replaceTrack(track);
+    const peerConnection = this.activeCall?.peerConnection;
+    if (!peerConnection) {
+      return;
+    }
+
+    const sender = findRtpSenderForKind(peerConnection, kind);
+    if (!sender) {
+      return;
+    }
+
+    void sender.replaceTrack(track);
   };
 
   private setState(patch: Partial<VideoCallState>) {

@@ -1,4 +1,4 @@
-import type { VirtualBackground } from './virtual-background';
+import type { VirtualBackground, VirtualBackgroundType } from './virtual-background';
 
 const stopStreamTracks = (stream: MediaStream | null | undefined) => {
   stream?.getTracks().forEach((track) => {
@@ -21,6 +21,7 @@ export class LocalMedia {
   private processedVideoStream: MediaStream | null = null;
   private virtualBackground: VirtualBackground | null = null;
   private virtualBackgroundEnabled = false;
+  private virtualBackgroundType: VirtualBackgroundType = 'blur';
   private publishGeneration = 0;
   private disposed = false;
 
@@ -40,6 +41,10 @@ export class LocalMedia {
 
   isVirtualBackgroundEnabled() {
     return this.virtualBackgroundEnabled;
+  }
+
+  getVirtualBackgroundType() {
+    return this.virtualBackgroundType;
   }
 
   async startCamera() {
@@ -128,6 +133,28 @@ export class LocalMedia {
     return this.virtualBackgroundEnabled;
   }
 
+  async setVirtualBackgroundType(type: VirtualBackgroundType) {
+    if (this.disposed) {
+      return this.virtualBackgroundType;
+    }
+
+    const previousType = this.virtualBackgroundType;
+    this.virtualBackgroundType = type;
+    this.callbacks.onChange();
+
+    if (this.virtualBackgroundEnabled && this.virtualBackground) {
+      try {
+        await this.virtualBackground.setBackgroundType(type);
+      } catch (error: unknown) {
+        this.virtualBackgroundType = previousType;
+        this.callbacks.onChange();
+        throw error;
+      }
+    }
+
+    return this.virtualBackgroundType;
+  }
+
   async toggleVirtualBackground() {
     return this.setVirtualBackgroundEnabled(!this.virtualBackgroundEnabled);
   }
@@ -166,7 +193,10 @@ export class LocalMedia {
       }
 
       this.virtualBackground ??= new VirtualBackground();
-      this.processedVideoStream = await this.virtualBackground.start(this.videoDeviceStream);
+      this.processedVideoStream = await this.virtualBackground.start(
+        this.videoDeviceStream,
+        this.virtualBackgroundType,
+      );
       if (this.disposed || generation !== this.publishGeneration || !this.virtualBackgroundEnabled) {
         if (generation === this.publishGeneration) {
           this.stopVirtualBackgroundProcessor();

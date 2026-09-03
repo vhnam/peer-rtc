@@ -1,6 +1,8 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import { useEffect, useRef, useState } from 'react';
 
+import { getAvatarInitials } from '@peer-rtc/ui/lib/avatar';
+
 import { DEFAULT_STAFF_DISPLAY_NAME } from '#/constants/call-room.constants';
 import { authClient } from '#/lib/auth-client';
 import {
@@ -10,7 +12,6 @@ import {
   type ConsumerEndedPayload,
 } from '#/lib/socket-client';
 import { useVideoCall } from '#/lib/video-call';
-import { getAvatarInitials } from '#/utils/avatar';
 
 import { CallRoomConsumerInfo } from './call-room-consumer-info';
 import { CallRoomFooter } from './call-room-footer';
@@ -18,11 +19,12 @@ import { CallRoomStage } from './call-room-stage';
 import type { CallRoomProps } from './call-room.types';
 
 export const CallRoom = ({ consultRequest }: CallRoomProps) => {
+  const isAwaitingConsumerRef = useRef(false);
+
   const [isStartedCall, setIsStartedCall] = useState(false);
   const [isDeclined, setIsDeclined] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
   const [hasConsumerAccepted, setHasConsumerAccepted] = useState(false);
-  const isAwaitingConsumerRef = useRef(false);
 
   const { data: session } = authClient.useSession();
   const user = session?.user;
@@ -35,6 +37,7 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
     isCameraEnabled,
     isMicrophoneEnabled,
     isVirtualBackgroundEnabled,
+    virtualBackgroundType,
     join,
     leave,
     startCamera,
@@ -42,6 +45,7 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
     toggleCamera,
     toggleMicrophone,
     toggleVirtualBackground,
+    setVirtualBackgroundType,
   } = useVideoCall();
 
   const isWaitingForConsumer = !hasConsumerAccepted || !isRemoteConnected;
@@ -185,6 +189,12 @@ export const CallRoom = ({ consultRequest }: CallRoomProps) => {
         }}
         onToggleVirtualBackground={() => {
           void toggleVirtualBackground().catch((error: unknown) => {
+            console.error(error);
+          });
+        }}
+        virtualBackgroundType={virtualBackgroundType}
+        onVirtualBackgroundTypeChange={(type) => {
+          void setVirtualBackgroundType(type).catch((error: unknown) => {
             console.error(error);
           });
         }}

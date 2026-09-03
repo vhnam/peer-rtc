@@ -90,6 +90,10 @@ const sdpCjsDefaultExport = () => ({
 
 const config = defineConfig({
   server: { https },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+  },
   optimizeDeps: {
     // Prebundling these hits Rolldown "is a directory" on peerjs-js-binarypack.
     exclude: ['peerjs', 'peerjs-js-binarypack', '@mediapipe/tasks-vision'],

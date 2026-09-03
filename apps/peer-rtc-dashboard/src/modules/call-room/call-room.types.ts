@@ -1,3 +1,4 @@
+import type { VirtualBackgroundType } from '#/lib/video-call';
 import type { ConsultRequest } from '#/modules/consult-requests/consult-requests.types';
 
 export type Position = {
@@ -51,9 +52,11 @@ export type CallRoomFooterProps = {
   isCameraEnabled: boolean;
   isMicrophoneEnabled: boolean;
   isVirtualBackgroundEnabled: boolean;
+  virtualBackgroundType: VirtualBackgroundType;
   onStartCall: () => void;
   onEndCall: () => void;
   onToggleCamera: () => void;
   onToggleMicrophone: () => void;
   onToggleVirtualBackground: () => void;
+  onVirtualBackgroundTypeChange: (type: VirtualBackgroundType) => void;
 };

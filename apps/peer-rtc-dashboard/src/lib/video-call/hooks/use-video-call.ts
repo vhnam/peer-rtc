@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
-import type { VideoCallOptions, VideoCallState } from '../types';
+import type { VideoCallOptions, VideoCallState, VirtualBackgroundType } from '../types';
 import { VideoCall } from '../video-call';
 
 const INITIAL_STATE: VideoCallState = {
@@ -12,6 +12,7 @@ const INITIAL_STATE: VideoCallState = {
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
   isVirtualBackgroundEnabled: false,
+  virtualBackgroundType: 'blur',
   error: null,
 };
 
@@ -76,6 +77,10 @@ export const useVideoCall = (options?: VideoCallOptions) => {
     await callRef.current?.toggleVirtualBackground();
   }, []);
 
+  const setVirtualBackgroundType = useCallback(async (type: VirtualBackgroundType) => {
+    await callRef.current?.setVirtualBackgroundType(type);
+  }, []);
+
   return {
     ...state,
     join,
@@ -85,5 +90,6 @@ export const useVideoCall = (options?: VideoCallOptions) => {
     toggleCamera,
     toggleMicrophone,
     toggleVirtualBackground,
+    setVirtualBackgroundType,
   };
 };

@@ -1,1 +1,1 @@
-export { default } from './protected-layout';
+export { ProtectedLayout } from './protected-layout';

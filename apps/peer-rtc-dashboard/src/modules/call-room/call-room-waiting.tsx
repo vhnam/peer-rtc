@@ -1,6 +1,5 @@
+import { getAvatarInitials } from '@peer-rtc/ui/lib/avatar';
 import { cn } from '@peer-rtc/ui/lib/utils';
-
-import { getAvatarInitials } from '#/utils/avatar';
 
 import type { CallRoomWaitingProps } from './call-room.types';
 
