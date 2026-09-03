@@ -21,6 +21,8 @@ export interface VideoCallState {
   isRemoteConnected: boolean;
   isCameraEnabled: boolean;
   isMicrophoneEnabled: boolean;
+  selectedMicrophoneDeviceId: string | null;
+  selectedCameraDeviceId: string | null;
   isVirtualBackgroundEnabled: boolean;
   virtualBackgroundType: VirtualBackgroundType;
   error: Error | null;

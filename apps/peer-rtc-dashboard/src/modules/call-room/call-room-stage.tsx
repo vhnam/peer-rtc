@@ -37,6 +37,7 @@ export const CallRoomStage = ({
   isStartedCall,
   isDeclined,
   isEnded,
+  isNoPickup,
   localStream,
   remoteStream,
   isCameraEnabled,
@@ -49,7 +50,8 @@ export const CallRoomStage = ({
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const { ref: droppableRef } = useDroppable({ id: CALL_ROOM_STAGE_DROPPABLE_ID });
 
-  const isWaitingForConsumerAfterStart = isWaitingForConsumer && isStartedCall && !isDeclined && !isEnded;
+  const isWaitingForConsumerAfterStart =
+    isWaitingForConsumer && isStartedCall && !isDeclined && !isEnded && !isNoPickup;
 
   useEffect(() => {
     bindVideo({ video: remoteVideoRef.current, stream: remoteStream });
@@ -109,8 +111,9 @@ export const CallRoomStage = ({
         {isWaitingForConsumerAfterStart && <CallRoomWaiting consumerName={consumerName} />}
         {isDeclined && <CallRoomWaiting consumerName={consumerName} isDeclined />}
         {isEnded && <CallRoomWaiting consumerName={consumerName} isEnded />}
+        {isNoPickup && <CallRoomWaiting consumerName={consumerName} isNoPickup />}
 
-        {!isWaitingForConsumer && !isDeclined && !isEnded && (
+        {!isWaitingForConsumer && !isDeclined && !isEnded && !isNoPickup && (
           <video
             ref={(video) => {
               remoteVideoRef.current = video;

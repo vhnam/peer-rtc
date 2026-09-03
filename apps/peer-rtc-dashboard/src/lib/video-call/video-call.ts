@@ -13,6 +13,8 @@ const createInitialState = (): VideoCallState => ({
   isRemoteConnected: false,
   isCameraEnabled: false,
   isMicrophoneEnabled: false,
+  selectedMicrophoneDeviceId: null,
+  selectedCameraDeviceId: null,
   isVirtualBackgroundEnabled: false,
   virtualBackgroundType: 'blur',
   error: null,
@@ -98,6 +100,8 @@ export class VideoCall {
       localStream: this.localMedia.getStream(),
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
+      selectedMicrophoneDeviceId: this.localMedia.getSelectedMicrophoneDeviceId(),
+      selectedCameraDeviceId: this.localMedia.getSelectedCameraDeviceId(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
       virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });
@@ -133,8 +137,26 @@ export class VideoCall {
     await this.localMedia.toggleCamera();
   };
 
+  setCameraDevice = async (deviceId: string): Promise<void> => {
+    try {
+      await this.localMedia.setCameraDevice(deviceId);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
+    }
+  };
+
   toggleMicrophone = async (): Promise<void> => {
     await this.localMedia.toggleMicrophone();
+  };
+
+  setMicrophoneDevice = async (deviceId: string): Promise<void> => {
+    try {
+      await this.localMedia.setMicrophoneDevice(deviceId);
+    } catch (error: unknown) {
+      this.setState({ error: error as Error });
+      throw error;
+    }
   };
 
   toggleVirtualBackground = async (): Promise<void> => {
@@ -260,6 +282,8 @@ export class VideoCall {
       localStream: this.localMedia.getStream(),
       isCameraEnabled: this.localMedia.isCameraEnabled(),
       isMicrophoneEnabled: this.localMedia.isMicrophoneEnabled(),
+      selectedMicrophoneDeviceId: this.localMedia.getSelectedMicrophoneDeviceId(),
+      selectedCameraDeviceId: this.localMedia.getSelectedCameraDeviceId(),
       isVirtualBackgroundEnabled: this.localMedia.isVirtualBackgroundEnabled(),
       virtualBackgroundType: this.localMedia.getVirtualBackgroundType(),
     });

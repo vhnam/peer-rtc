@@ -7,3 +7,5 @@ export const CALL_ROOM_STAGE_DROPPABLE_ID = 'draggable-container';
 export const CALL_ROOM_LOCAL_MEDIA_DRAGGABLE_ID = 'local-media';
 
 export const DEFAULT_STAFF_DISPLAY_NAME = 'Staff';
+
+export const CONSUMER_PICKUP_TIMEOUT_MS = 30_000;

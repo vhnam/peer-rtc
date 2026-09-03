@@ -4,13 +4,15 @@
 
 ### Patch Changes
 
-- ec56272: Add live consult-request join signaling, operator call-start waiting, dashboard appearance settings, and shared theme support.
+- ec56272: Add live consult-request join signaling, operator call-start waiting,
+  dashboard appearance settings, and shared theme support.
 
 ## 0.0.1
 
 ### Patch Changes
 
-- 6ca7443: Add consult-request listing, filters, and pagination for consumers and operators.
+- 6ca7443: Add consult-request listing, filters, and pagination for consumers
+  and operators.
 
 ## 0.0.0
 
