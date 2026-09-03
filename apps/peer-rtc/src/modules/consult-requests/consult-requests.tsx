@@ -23,7 +23,7 @@ export const ConsultRequestsPage = ({ page, limit, consumerId, status, time, req
 
   return (
     <>
-      <div className="mx-auto w-full min-w-0 max-w-5xl px-4">
+      <div className="mx-auto w-full min-w-0 container px-4">
         <div className="flex min-w-0 flex-col gap-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">

@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
 import { env } from '#/env';
@@ -13,13 +13,17 @@ export type ConsultRequestSocketPayload = {
 
 export type ProviderJoinedPayload = ConsultRequestSocketPayload;
 
+export type ProviderEndedPayload = ConsultRequestSocketPayload;
+
 export interface ServerToClientEvents {
   provider_joined: (payload: ProviderJoinedPayload) => void;
+  provider_ended: (payload: ProviderEndedPayload) => void;
 }
 
 export interface ClientToServerEvents {
   consumer_accepted: (payload: ConsultRequestSocketPayload) => void;
   consumer_declined: (payload: ConsultRequestSocketPayload) => void;
+  consumer_ended: (payload: ConsultRequestSocketPayload) => void;
 }
 
 export type PeerSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -130,4 +134,29 @@ export const useProviderJoinedPrompt = (enabled = true) => {
     accept,
     decline,
   };
+};
+
+export const useProviderEnded = (roomId: string, onEnded: (payload: ProviderEndedPayload) => void, enabled = true) => {
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const onProviderEnded = (payload: ProviderEndedPayload) => {
+      if (!payload.consultRequestId || payload.consultRequestId !== roomId) {
+        return;
+      }
+
+      onEndedRef.current(payload);
+    };
+
+    socket.on('provider_ended', onProviderEnded);
+
+    return () => {
+      socket.off('provider_ended', onProviderEnded);
+    };
+  }, [enabled, roomId]);
 };

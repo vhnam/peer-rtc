@@ -9,7 +9,7 @@ interface RoomFooterProps {
   isCameraEnabled: boolean;
   toggleMicrophone: () => void;
   toggleCamera: () => void;
-  leaveRoom: () => void;
+  endCall: () => void;
 }
 
 export const RoomFooter = ({
@@ -17,7 +17,7 @@ export const RoomFooter = ({
   isCameraEnabled,
   toggleMicrophone,
   toggleCamera,
-  leaveRoom,
+  endCall,
 }: RoomFooterProps) => {
   return (
     <footer className="flex h-20 shrink-0 items-center justify-center">
@@ -71,13 +71,13 @@ export const RoomFooter = ({
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button variant="destructive" size="icon-lg" onClick={leaveRoom}>
+              <Button variant="destructive" size="icon-lg" onClick={endCall}>
                 <PhoneIcon className="rotate-135" />
               </Button>
             }
           />
           <TooltipContent>
-            <p>Leave room</p>
+            <p>End call</p>
           </TooltipContent>
         </Tooltip>
       </div>
